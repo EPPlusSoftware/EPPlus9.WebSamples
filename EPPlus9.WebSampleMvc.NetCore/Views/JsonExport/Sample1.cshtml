@@ -1,0 +1,307 @@
+﻿@{
+    ViewData["Title"] = "JsonExport Samples";
+}
+<script type="text/javascript" src=https://www.gstatic.com/charts/loader.js></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+<div class="row">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/JsonExport">JSON export</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 1</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <h4>JSON export - Chart.js line chart</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col my-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="tab-demo">Demo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-csharp">C#</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-js">Javascript</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-json">JSON</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row demo">
+    <div class="col-12">
+        <p>In this sample we use JSON data, containing over 2000 currency rates, from EPPlus to populate a <a href="https://www.chartjs.org/" target="_blank">Charts.js</a> line chart. The rates are imported to EPPlus from a .csv file using the <a href="https://github.com/EPPlusSoftware/EPPlus/wiki/LoadFromText" target="_blank">LoadFromText</a> function and exported to JSON via the ToJson() method.
+            The JSON data is fetched via an ajax call to a separate MVC controller action (JsonExportController.Sample1GetJsonData())</p>
+    </div>
+</div>
+<div class="row demo">
+    <div class="col">
+        <div id="currency-chart-loader" class="text-center border border-secondary p-3 mb-4 rounded shadow" style="height:550px">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading chart...</span>
+            </div>
+        </div>
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+<div class="row js" style="display:none">
+    <div class="col">
+        <pre>
+        <code class="language-js hljs" id="js-code"></code>
+        </pre>
+    </div>
+</div>
+<div class="row json" style="display:none">
+    <div class="col">
+        <p>This is just a small subset of the actual json in the sample to show the format.</p>
+        <pre>
+            <code class="language-json" id="json-code">
+{
+    "range": {
+        "columns": [
+            {
+                "name": "Date",
+                "dt": "datetime"
+            },
+            {
+                "name": "GBP",
+                "dt": "number"
+            },
+            {
+                "name": "EUR",
+                "dt": "number"
+            },
+            {
+                "name": "AUD",
+                "dt": "number"
+            },
+            {
+                "name": "CAD",
+                "dt": "number"
+            }
+        ],
+        "rows": [
+            {
+                "cells": [
+                    {
+                        "v": "1636588800000",
+                        "t": "2021-11-11"
+                    },
+                    {
+                        "v": "0.7464",
+                        "t": "0,7464"
+                    },
+                    {
+                        "v": "0.8726",
+                        "t": "0,8726"
+                    },
+                    {
+                        "v": "1.3699",
+                        "t": "1,3699"
+                    },
+                    {
+                        "v": "1.2582",
+                        "t": "1,2582"
+                    }
+                ]
+            },
+            {
+                "cells": [
+                    {
+                        "v": "1635984000000",
+                        "t": "2021-11-04"
+                    },
+                    {
+                        "v": "0.7377",
+                        "t": "0,7377"
+                    },
+                    {
+                        "v": "0.8644",
+                        "t": "0,8644"
+                    },
+                    {
+                        "v": "1.3486",
+                        "t": "1,3486"
+                    },
+                    {
+                        "v": "1.2417",
+                        "t": "1,2417"
+                    }
+                ]
+            }
+        ]
+    }
+}
+            </code>
+        </pre>
+    </div>
+</div>
+<div class="row csharp" style="display:none">
+    <div class="col">
+        <pre>
+        <code class="language-csharp hljs">
+@Html.Raw("[HttpGet, Route(\"/api/currencyrates\")]")
+public async Task&lt;JsonResult&gt; Sample1GetJsonData()
+{
+    using(var package = new ExcelPackage())
+    {
+        var sheet = package.Workbook.Worksheets.Add("Currencies");
+        var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+        var format = new ExcelTextFormat
+        {
+            Delimiter = ';',
+            Culture = CultureInfo.InvariantCulture,
+            DataTypes = new eDataTypes[] { eDataTypes.DateTime, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number }
+        };
+        var range = await sheet.Cells["A1"].LoadFromTextAsync(csvFileInfo, format);
+        sheet.Cells[range.Start.Row, 1, range.End.Row, 1].Style.Numberformat.Format = "yyyy-MM-dd";
+        sheet.Cells[range.Start.Row, 2, range.End.Row, 5].Style.Numberformat.Format = "#,##0.0000";
+        var jsonData = range.ToJson(x=>x.AddDataTypesOn=eDataTypeOn.OnColumn);
+        return Json(jsonData);
+    }
+}
+        </code>
+        </pre>
+    </div>
+</div>
+<script type="text/javascript" id="chart-script">
+// runs when the DOM content has been fully loaded and fetches
+// the exported json data via an ajax (jQuery.getJSON) call.
+document.addEventListener('DOMContentLoaded', function () {
+    $.getJSON("/api/currencyrates", function(data){
+        let jsonData = JSON.parse(data);
+        let config = {
+            type: 'line',
+            data: getChartJsData(0, [1, 2, 3, 4], jsonData.range),
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Historial currency rates in USD'
+                    }
+                }
+            }
+        };
+        document.getElementById("currency-chart-loader").style.display = 'none';
+        let myChart = new Chart(document.getElementById("myChart"), config);
+    }, false);
+});
+
+// Reads data from exported range and creates input for a Chart.js line chart.
+// The argument xCol should be the 0-based index of the range column that contains the labels of the x-axis.
+// The argument indexes should be an array containing the 0 - based indexes of the ranges columns
+// columns to use in the datasets.
+function getChartJsData(labelColumn, dataColumns, jsonRange) {
+    var xDataType;
+    var dataTypes = [];
+    var colors = ['black', 'blue', 'red', 'orange', 'green']
+    var data = {
+        labels: [],
+        datasets: []
+    };
+
+    // Read data from the column section
+    for (var i = 0; i < jsonRange.columns.length; i++) {
+        if (dataColumns.indexOf(i) > -1) {
+            data.datasets.push({
+                label: jsonRange.columns[i].name,
+                data: [],
+                borderColor: colors[i],
+                backgroundColor: colors[i],
+                borderWidth: 1,
+                pointRadius: 0.5,
+                fill: false
+            });
+        }
+    }
+
+    // Read data in reverse order from the range's rows
+    let labelDataType = jsonRange.columns[labelColumn].dt;
+    for (var row = jsonRange.rows.length - 1; row >= 0 ; row--) {
+        let labelValue = getValue(jsonRange.rows[row].cells[labelColumn].v, labelDataType);
+        data.labels.push(jsonRange.rows[row].cells[labelColumn].t);
+        for (var i = 0; i < dataColumns.length; i++) {
+            let columnIndex = dataColumns[i];
+            let val = getValue(jsonRange.rows[row].cells[columnIndex].v, jsonRange.columns[columnIndex].dt);
+            data.datasets[i].data.push({ x: labelValue, y: val });
+        }
+    }
+    return data;
+}
+
+function getValue(val, datatype) {
+    if (datatype == "string") {
+        return val;
+    }
+    else if (datatype == "number") {
+        return parseFloat(val);
+    }
+    else if (datatype == "datetime") {
+        return new Date(parseInt(val));
+    }
+}
+</script>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        jQuery(".csharp").hide();
+        jQuery(".js").hide();
+        jQuery(".json").hide();
+        jQuery("#js-code").html(jQuery("#chart-script").html());
+        
+        //let html = new DOMParser().parseFromString(jQuery("#table-container").innerHTML, "text/html").documentElement.textContent;
+        //jQuery("#html-code").html(html);
+        hljs.highlightAll();
+        jQuery("#tab-csharp").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").show();
+            jQuery(".js").hide();
+            jQuery(".json").hide();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").addClass("active");
+            jQuery("#tab-js").removeClass("active");
+        });
+        jQuery("#tab-demo").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").show();
+            jQuery(".csharp").hide();
+            jQuery(".js").hide();
+            jQuery(".json").hide();
+            jQuery("#tab-demo").addClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-js").removeClass("active");
+            jQuery("#tab-html").removeClass("active");
+        });
+        jQuery("#tab-js").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").hide();
+            jQuery(".js").show();
+            jQuery(".json").hide();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-js").addClass("active");
+            jQuery("#tab-json").removeClass("active");
+        });
+        jQuery("#tab-json").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").hide();
+            jQuery(".js").hide();
+            jQuery(".json").show();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-js").removeClass("active");
+            jQuery("#tab-json").addClass("active");
+        });
+    });
+</script>

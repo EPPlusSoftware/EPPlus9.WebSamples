@@ -1,0 +1,14 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport.ConditionalFormattings
+{
+    public class CfSample
+    {
+        public string Name { get; set; }
+
+        public string TableName { get; set; }
+
+        public string Description { get; set; }
+    }
+}

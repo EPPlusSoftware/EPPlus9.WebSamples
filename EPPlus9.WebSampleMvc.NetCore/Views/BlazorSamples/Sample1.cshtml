@@ -1,0 +1,339 @@
+﻿<div class="row">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/BlazorSamples">Blazor samples</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 1</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <h4>Blazor sample 1 - generate workbook in the browser</h4>
+    </div>
+</div>
+<div class="row my-2">
+    <div class="col bg-light rounded">
+        <div class="row">
+            <div class="col-6">
+                <a href="#" class="text-secondary disabled">&laquo; Previous sample</a>
+            </div>
+            <div class="col-6 text-right">
+                <a  href="#" class="text-secondary disabled">Next sample &raquo;</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col my-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="tab-demo">Demo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-csharp">C#/Blazor</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-js">Javascript</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row demo">
+    <div class="col">
+@*         <a class="btn btn-primary" href="https://localhost:7133/CreateExcelFile" target="_blank">
+            Create Excel File (WebAssembly Demo)
+        </a>*@
+        <iframe src="https://localhost:7133/CreateExcelFile" style="width:100%; height:800px; border:none;"></iframe>
+    </div>
+</div>
+<div class="row csharp"  style="display:none">
+    <div class="col">
+        <p>Blazor code below. BlazorDownloadFile is a Javascript function on this page that handles the download of the workbook created in Blazor.</p>
+        <pre>
+        <code class="language-csharp hljs">
+@Html.Raw("@using System.IO")
+@Html.Raw("@using OfficeOpenXml")
+@Html.Raw("@using Microsoft.JSInterop")
+@Html.Raw("@using System.Net")
+@Html.Raw("@using System.Reflection")
+@Html.Raw("@using System.Dynamic")
+@Html.Raw("@using System.Text.Json")
+@Html.Raw("@using OfficeOpenXml.Table")
+@Html.Raw("@inject IJSRuntime JS")
+
+@Html.Raw("@code {")
+    async Task DownloadExcel()
+    {   
+        using(var package = new ExcelPackage())
+        {
+            // Add a named style for hyperlinks
+            var ns = package.Workbook.Styles.CreateNamedStyle("Hyperlink");
+            ns.BuildInId = 8; //Build in type 8 is Hyperlink
+            ns.Style.Font.Color.SetColor(eThemeSchemeColor.Hyperlink);
+            ns.Style.Font.UnderLine = true;
+
+            var sheet = package.Workbook.Worksheets.Add("Cities");
+
+            await LoadCitiesListFromJavascript(sheet);
+
+            // add a hyperlink to next worksheet
+            var nextWorksheetHyperlink = new ExcelHyperLink("'Fx Rates'!A1", "Go to next worksheet");
+            sheet.Cells["A13"].Hyperlink = nextWorksheetHyperlink;
+            sheet.Cells["A13"].StyleName = "Hyperlink";
+
+            // Adjust the column width after the widest text in the cells
+            sheet.Cells[1, 1, sheet.Dimension.End.Row, sheet.Dimension.End.Column].AutoFitColumns();
+
+            // read png image from embedded resource
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlus9.WebSampleMvc.NetCore.WebAssemblySamples.Resources.EPPlus-logo-full.png");
+            var pic = sheet.Drawings.AddPicture("epplogo", stream, OfficeOpenXml.Drawing.ePictureType.Png);
+            pic.SetSize(50);
+            pic.SetPosition(0, 10, 0, 10);
+
+
+            // call an api endpoint to retrieve json data with fx rates. 
+            var client = new HttpClient();
+            var url = new Uri(new Uri(_navigationManager.BaseUri), "/api/fxrates");
+            var response = await client.GetAsync(url);
+            var fxRatesJson = await response.Content.ReadFromJsonAsync<string>();
+            var fxRates = JsonSerializer.Deserialize<IEnumerable<ExpandoObject>>(fxRatesJson);
+            CreateTableAndChartWorksheet(package, fxRates);
+
+            // finally serialize the workbook to a byte array and use the BlazorDownloadFile function to create a link for download.
+            await JS.InvokeVoidAsync("BlazorDownloadFile", "BlazorSample1.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", package.GetAsByteArray());
+
+        }
+    }
+
+    private async Task LoadCitiesListFromJavascript(ExcelWorksheet sheet)
+    {
+        // get some json data from a javascript function and convert it into ExpandoObjects (dynamic objects)
+        var json = await JS.InvokeAsync&lt;string&gt;("getCities");
+        var cities = JsonSerializer.Deserialize&lt;IEnumerable&lt;ExpandoObject&gt;&gt;(json);
+        // load the dynamic objects into EPPlus using the LoadFromDictionaries method.
+        var loadedRange = sheet.Cells["A5"].LoadFromDictionaries(cities, x => {
+            x.TableStyle = OfficeOpenXml.Table.TableStyles.Medium13;
+            x.PrintHeaders = true;
+            x.DataTypes = new eDataTypes[] { eDataTypes.String, eDataTypes.Number, eDataTypes.String, eDataTypes.Number };
+        });
+        var table = sheet.Tables.GetFromRange(loadedRange);
+        table.ShowTotal = true;
+        table.Columns[0].TotalsRowLabel = "Average";
+        table.Columns[1].TotalsRowFunction = RowFunctions.Average;
+        table.Columns[3].TotalsRowFunction = RowFunctions.Average;
+        sheet.Cells[table.Range.Start.Row, 2, table.Range.End.Row, 2].Style.Numberformat.Format = "#,##0";
+        sheet.Cells[table.Range.Start.Row, 4, table.Range.End.Row, 4].Style.Numberformat.Format = "#,##0 \"km2\"";
+        // Calculate the formulas in the worksheet, in this case the average functions of the table's total row
+        sheet.Calculate();
+    }
+
+    private static void CreateTableAndChartWorksheet(ExcelPackage p,IEnumerable<ExpandoObject>? data)
+    {
+        var ws = p.Workbook.Worksheets.Add("FX Rates");
+        ws.View.ShowGridLines = false;
+
+        var range = ws.Cells["A20"].LoadFromDictionaries(data, x =>
+        {
+            x.TableStyle = null;
+            x.DataTypes = new[] { eDataTypes.DateTime, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number };
+            x.PrintHeaders = true;
+            x.Culture = CultureInfo.InvariantCulture;
+        });
+
+        ws.Cells["A:A"].Style.Numberformat.Format = "yyyy-MM-dd";
+        ws.Cells["B:F"].Style.Numberformat.Format = "#,##0.00";
+
+        ws.Cells[22, 7, range.End.Row, 11].Formula = "B$21/B22-1";
+        ws.Cells["G:K"].Style.Numberformat.Format = "0.00%";
+
+        ws.Cells["B20"].Value = "USD/SEK";
+        ws.Cells["C20"].Value = "USD/EUR";
+        ws.Cells["D20"].Value = "USD/INR";
+        ws.Cells["E20"].Value = "USD/CNY";
+        ws.Cells["F20"].Value = "USD/DKK";
+
+        ws.Cells["G20"].Value = "USD/SEK %";
+        ws.Cells["H20"].Value = "USD/EUR %";
+        ws.Cells["I20"].Value = "USD/INR %";
+        ws.Cells["J20"].Value = "USD/CNY %";
+        ws.Cells["K20"].Value = "USD/DKK %";
+
+        //Add a table over the range including the . 
+        var tbl = ws.Tables.Add(ws.Cells[20, 1, range.End.Row, 11], "Table2");
+        tbl.TableStyle = OfficeOpenXml.Table.TableStyles.Dark6;
+
+        ws.View.FreezePanes(21, 1);
+
+        CreateLineChart(ws, range);
+
+        ws.Calculate();
+        ws.Cells.AutoFitColumns();
+    }
+
+    private static void CreateLineChart(ExcelWorksheet ws, ExcelRangeBase range)
+    {
+        var chart = ws.Drawings.AddLineChart("LineChart1", eLineChartType.Line);
+        var s1 = chart.Series.Add(ws.Cells[21, 7, range.End.Row, 7], ws.Cells[21, 1, range.End.Row, 1]);
+        s1.HeaderAddress = ws.Cells["G20"];
+
+        var s2 = chart.Series.Add(ws.Cells[21, 8, range.End.Row, 8], ws.Cells[21, 1, range.End.Row, 1]);
+        s2.HeaderAddress = ws.Cells["H20"];
+
+        var s3 = chart.Series.Add(ws.Cells[21, 9, range.End.Row, 9], ws.Cells[21, 1, range.End.Row, 1]);
+        s3.HeaderAddress = ws.Cells["I20"];
+
+        var s4 = chart.Series.Add(ws.Cells[21, 10, range.End.Row, 10], ws.Cells[21, 1, range.End.Row, 1]);
+        s4.HeaderAddress = ws.Cells["J20"];
+
+        var s5 = chart.Series.Add(ws.Cells[21, 11, range.End.Row, 11], ws.Cells[21, 1, range.End.Row, 1]);
+        s5.HeaderAddress = ws.Cells["K20"];
+
+        chart.XAxis.Crosses = eCrosses.Min;
+
+        chart.To.Row = 19;
+        chart.To.Column = 11;
+        chart.Legend.Add();
+        chart.Legend.Position = eLegendPosition.Bottom;
+        chart.StyleManager.SetChartStyle(ePresetChartStyleMultiSeries.LineChartStyle9);
+    }
+}
+            </code>
+        </pre>
+    </div>
+</div>
+<div class="row js"  style="display:none">
+    <div class="col">
+        <pre>
+        <code class="language-js hljs" id="js-code"></code>
+        </pre>
+    </div>
+</div>
+<script type="text/javascript" id="chart-script">
+
+    function getCities(){
+        var cities = [
+            {
+                "Name": "Tokyo-Yokohama",
+                "Population": 37843000,
+                "Country": "Japan",
+                "Area": 8547
+            },
+            {
+                "Name": "Jakarta",
+                "Population": 30539000,
+                "Country": "Indonesia",
+                "Area": 3225
+            },
+            {
+                "Name": "Delhi, DL-UP-HR",
+                "Population": 24998000,
+                "Country": "India",
+                "Area": 2072
+            },
+            {
+                "Name": "Manila",
+                "Population": 24123000,
+                "Country": "Philippines",
+                "Area": 1580
+            },
+            {
+                "Name": "Seoul-Incheon",
+                "Population": 23480000,
+                "Country": "South Korea",
+                "Area": 2266
+            }
+        ];
+        return JSON.stringify(cities);
+    }
+</script>
+<script src="_framework/blazor.webassembly.js"></script>
+<script type="text/javascript">
+    function BlazorDownloadFile(filename, contentType, content) {
+        // Blazor marshall byte[] to a base64 string, so we first need to convert the string (content) to a Uint8Array to create the File
+        const data = base64DecToArr(content);
+
+        // Create the URL
+        const file = new File([data], filename, { type: contentType });
+        const exportUrl = URL.createObjectURL(file);
+
+        // Create the <a> element and click on it
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+        a.href = exportUrl;
+        a.download = filename;
+        a.target = "_self";
+        a.click();
+
+        // We don't need to keep the url, let's release the memory
+        // On Safari it seems you need to comment this line... (please let me know if you know why)
+        URL.revokeObjectURL(exportUrl);
+    }
+
+    // Convert a base64 string to a Uint8Array. This is needed to create a blob object from the base64 string.
+    // The code comes from: https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
+    function b64ToUint6(nChr) {
+        return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
+    }
+
+    function base64DecToArr(sBase64, nBlocksSize) {
+        var
+            sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""),
+            nInLen = sB64Enc.length,
+            nOutLen = nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2,
+            taBytes = new Uint8Array(nOutLen);
+
+        for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+            nMod4 = nInIdx & 3;
+            nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 18 - 6 * nMod4;
+            if (nMod4 === 3 || nInLen - nInIdx === 1) {
+                for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
+                    taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
+                }
+                nUint24 = 0;
+            }
+        }
+        return taBytes;
+    }
+</script>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        jQuery(".csharp").hide();
+        jQuery(".js").hide();
+        jQuery("#js-code").html(jQuery("#chart-script").html());
+        //let html = new DOMParser().parseFromString(jQuery("#table-container").innerHTML, "text/html").documentElement.textContent;
+        //jQuery("#html-code").html(html);
+        hljs.highlightAll();
+        jQuery("#tab-csharp").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").show();
+            jQuery(".js").hide();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").addClass("active");
+            jQuery("#tab-js").removeClass("active");
+        });
+        jQuery("#tab-demo").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").show();
+            jQuery(".csharp").hide();
+            jQuery(".js").hide();
+            jQuery(".html").hide();
+            jQuery("#tab-demo").addClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-js").removeClass("active");
+            jQuery("#tab-html").removeClass("active");
+        });
+        jQuery("#tab-js").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").hide();
+            jQuery(".js").show();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-js").addClass("active");
+        });
+    });
+</script>

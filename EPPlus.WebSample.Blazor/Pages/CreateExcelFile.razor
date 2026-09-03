@@ -1,0 +1,139 @@
+﻿@page "/CreateExcelFile"
+@using OfficeOpenXml
+@using OfficeOpenXml.Table;
+@using OfficeOpenXml.Drawing;
+@using OfficeOpenXml.Drawing.Chart;
+@using OfficeOpenXml.Drawing.Chart.Style;
+@using System.Reflection;
+@using System.Text.Json;
+@using System.Dynamic;
+@using System.Globalization;
+@inject IJSRuntime JS
+@inject NavigationManager _navigationManager;
+<h3>Download Excel from EPPlus (WebAssembly)</h3>
+<select @bind="chartType">
+    <option value="LineChart">Line Chart</option>
+    <option value="ColumnChart">Column Chart</option>
+    <option value="BarChart">Bar Chart</option>
+</select>
+<select @bind="chartStyle">
+    <option value="1">Style 1</option>
+    <option value="2">Style 2</option>
+    <option value="3">Style 3</option>
+    <option value="4">Style 4</option>
+    <option value="5">Style 5</option>
+    <option value="6">Style 6</option>
+    <option value="7">Style 7</option>
+    <option value="8">Style 8</option>
+    <option value="9">Style 9</option>
+    <option value="1">Style 10</option>
+</select>
+<button class="btn btn-primary" @onclick="()=>DownloadExcel(chartType, chartStyle)">Download workbook</button>
+<button class="btn btn-primary" @onclick="() => ExportPdf(chartType, chartStyle)">Download as Pdf</button>
+<button class="btn btn-primary" @onclick="() => ExportSvg(chartType, chartStyle)">Export Chart as SVG</button>
+<img src="@svgDataUri" alt="Chart" />
+<script type="text/javascript" id="chart-script">
+
+    function getCities(){
+        var cities = [
+            {
+                "Name": "Tokyo-Yokohama",
+                "Population": 37843000,
+                "Country": "Japan",
+                "Area": 8547
+            },
+            {
+                "Name": "Jakarta",
+                "Population": 30539000,
+                "Country": "Indonesia",
+                "Area": 3225
+            },
+            {
+                "Name": "Delhi, DL-UP-HR",
+                "Population": 24998000,
+                "Country": "India",
+                "Area": 2072
+            },
+            {
+                "Name": "Manila",
+                "Population": 24123000,
+                "Country": "Philippines",
+                "Area": 1580
+            },
+            {
+                "Name": "Seoul-Incheon",
+                "Population": 23480000,
+                "Country": "South Korea",
+                "Area": 2266
+            }
+        ];
+        return JSON.stringify(cities);
+    }
+</script>
+@code {
+    private string chartType = "LineChart";
+    private string chartStyle = "7";
+    private string svgDataUri;
+    async Task DownloadExcel(string chartType, string chartStyle)
+    {
+        var package = await CreateWorkbookAsync(chartType, int.Parse(chartStyle));
+        await JS.InvokeVoidAsync("BlazorDownloadFile", "BlazorSample1.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", package.GetAsByteArray());
+    }
+    async Task ExportSvg(string chartType, string chartStyle)
+    {
+        var package = await CreateWorkbookAsync(chartType, int.Parse(chartStyle));
+
+        var ws = package.Workbook.Worksheets[1];
+
+        var chart = ws.Drawings[0].As.Chart.ChartStandard;
+
+        var svg = chart.ToSvg();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(svg);
+        package.Dispose();
+        svgDataUri = $"data:image/svg+xml;base64,{Convert.ToBase64String(bytes)}";
+    }
+    async Task ExportPdf(string chartType, string chartStyle)
+    {
+        var package = await CreateWorkbookAsync(chartType, int.Parse(chartStyle));
+
+        var ws = package.Workbook.Worksheets[1];
+        var ms = new MemoryStream();        
+        try
+        {
+            ws.SaveAsPdf(ms);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        ms.Flush();
+        package.Dispose();
+        await JS.InvokeVoidAsync("BlazorDownloadFile", "BlazorSample1.pdf", "application/pdf", ms.GetBuffer());
+    }
+
+    private async Task<ExcelPackage> CreateWorkbookAsync(string chartType, int chartStyle)
+    {
+        var json = await JS.InvokeAsync<string>("getCities");
+        var cities = JsonSerializer.Deserialize<IEnumerable<ExpandoObject>>(json);
+        eChartType type;
+        ePresetChartStyle style;
+        if (chartType == "BarChart")
+        {
+            type = eChartType.BarClustered;
+            Enum.TryParse<ePresetChartStyle>($"BarChartStyle{chartStyle}", out style);
+        }
+        else if(chartType == "ColumnChart")
+        {
+            type = eChartType.ColumnClustered;
+            Enum.TryParse<ePresetChartStyle>($"ColumnChartStyle{chartStyle}", out style);
+        }
+        else
+        {
+            type = eChartType.Line;
+            Enum.TryParse<ePresetChartStyle>($"LineChartStyle{chartStyle}", out style);
+        }
+        return await CreateWorkbook.CreateSampleWorkbook(cities, type, style);
+    }
+
+
+}

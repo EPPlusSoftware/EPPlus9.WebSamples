@@ -18,11 +18,11 @@
             <div class="col-md-4">
                 <div class="card sample-card">
                     <div class="card-body">
-                        <span class="badge bg-secondary text-bg-info mb-2">Sample 1</span>
-                        <h5 class="card-title">Worksheet Export</h5>
+                        <span class="badge badge-info mb-2">Sample 1</span>
+                        <h5 class="card-title">Html Export with drawings</h5>
                         <p class="card-text text-muted">
                             A full worksheet export combining a line chart with a table of FX rate data.
-                            This export uses the GetSinglePage method of the html export as uses the chart object size, row height and column width to display the sheet as-is.
+                            This export uses absolute positioning and sizing to display the chart and table just as they appear in Excel.
                         </p>
                         <a href="/EPPlus9/HtmlExportWithCharts/">Sample 1&rarr;</a>
                     </div>
@@ -32,10 +32,10 @@
             <div class="col-md-4">
                 <div class="card sample-card">
                     <div class="card-body">
-                        <span class="badge bg-secondary text-bg-info mb-2">Sample 2</span>
+                        <span class="badge badge-info mb-2">Sample 2</span>
                         <h5 class="card-title">SVG Chart Gallery</h5>
                         <p class="card-text text-muted">
-                            Every chart type supported by SVG export: bar, column, line, pie, and combo charts                            
+                            This sample exports the table and the SVG chart separately, giving you more control over the layout when building the web page. Every chart type supported by SVG export is included: bar, column, line, pie, and combo charts.
                         </p>
                         <a href="/EPPlus9/HtmlExportDifferentCharts/">Sample 2&rarr;</a>
                     </div>
@@ -45,54 +45,15 @@
             <div class="col-md-4">
                 <div class="card sample-card">
                     <div class="card-body">
-                        <span class="badge bg-secondary text-bg-info mb-2">Sample 3</span>
+                        <span class="badge badge-info mb-2">Sample 3</span>
                         <h5 class="card-title">PDF Export</h5>
                         <p class="card-text text-muted">
-                            A worksheet exported straight into a polished PDF document.
+                            This sample demonstrates the new PDF export feature in EPPlus 9. The web page is built using HTML export, and with the click of a button you can export the worksheet directly into a polished PDF document, complete with header and footer.
                         </p>
                         <a href="/EPPlus9/PdfExport/">Sample 3&rarr;</a>
                     </div>
                 </div>
             </div>
-
-@* Sample 1 — Worksheet Export
-A worksheet combining a line chart with a table of live-scale FX rate data.
-
-Sample 2 — SVG Chart Gallery
-Every chart type supported by SVG export: bar, column, line, pie, and combo charts mixing bar, column, and line series.
-
-Sample 3 — PDF Export
-A worksheet exported straight into a polished PDF document.</p>
-            <ul>
-                <li><a href="/EPPlus9/HtmlExportWithCharts/">Html export with Drawings as Svg</a></li>
-                <li><a href="/EPPlus9/HtmlExportDifferentCharts/">Export Drawings as Svg</a></li>
-                <li><a href="/EPPlus9/PdfExport/">Pdf Export</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-                <h3>Configuration</h3>
-                <p class="my-3">In this sample we have configured the LicenseContext property in <i>appSettings.json</i>.</p>
-                <pre class="bg-light">
-{
-  "EPPlus": {
-     "ExcelPackage": {
-        "LicenseContext": "NonCommercial"
-     }
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
-  },
-  "AllowedHosts": "*"
-}
-            </pre>
-        </div>
-    </div> *@
             <div class="row mt-3">
                 <div class="col">
                     <h3>Clone this repo</h3>

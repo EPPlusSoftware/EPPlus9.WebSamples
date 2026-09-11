@@ -1,11 +1,11 @@
-﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportDifferentChartsModel;
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportModel;
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item"><a href="/EPPlus9">EPPlus 9 samples</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Sample 2</li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 3</li>
             </ol>
         </nav>
     </div>
@@ -19,10 +19,10 @@
     <div class="col bg-light rounded">
         <div class="row">
             <div class="col-6">
-                <a href="EPPlus9/HtmlExportwithCharts">&laquo; Previous sample</a>
+                <a href="/EPPlus9/HtmlExportDifferentCharts">&laquo; Previous sample</a>
             </div>
             <div class="col-6 text-right">
-                <a href="EPPlus9/PdfExport">Next sample &raquo;</a>
+                <a  href="#" class="text-secondary disabled">Next sample &raquo;</a>
             </div>
         </div>
     </div>
@@ -36,57 +36,39 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" id="tab-csharp">C#</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" id="tab-js">Javascript</a>
-            </li>
         </ul>
     </div>
 </div>
-<form asp-action="HtmlExportDifferentCharts" method="post" id="form1">
+<form asp-action="PdfExport" method="post" id="form1">
     @Html.AntiForgeryToken()
     <div class="row">
-        <div class="col-sm-4 col-md-2">
-            <label>Chart Type</label>
-        </div>
-        <div class="col-sm-4 col-md-2">
-            <label>Chart Style</label>
-        </div>
-        <div class="col-sm-4 col-md-2">
-            <label>Table Style</label>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-4 col-md-2">
-            @Html.DropDownListFor(x => x.ChartType, Model.SupportedChartTypes, new { @class = "form-control" })
-        </div>
-        <div class="col-sm-4 col-md-2">
-            @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
-        </div>
-        <div class="col-sm-4 col-md-2">
+        <div class="col-sm-6 col-md-3">
+            <label>Table style</label>
             @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
         </div>
     </div>
     <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
-            <button type="submit" class="btn btn-sm btn-primary" name="action" value="submit">Reload</button>
+            <button type="submit" class="btn btn-sm btn-primary" name="action" value="submit" id="btn-submit-form">Reload</button>
         </div>
         <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary" name="action" value="download">Download Workbook</button>
+            <button type="submit" class="btn btn-sm btn-primary" name="action" value="excel">Download Workbook</button>
+        </div>
+        <div class="col-sm-1 col-md-2">
+            <button type="submit" class="btn btn-sm btn-primary" name="action" value="pdf">Download Pdf</button>
         </div>
     </div>
     <div class="row mt-3">
-        <div class="col">
-            <style>@Html.Raw(Model.Css)</style>
-            @Html.Raw(Model.SvgChart)
+        <div class="col-sm-12 col-md-6">
+            <style>@Html.Raw(Model.Css)</style>       
             @Html.Raw(Model.Html)
-        </div>  
+        </div>
     </div>
 </form>
 
 <div class="row csharp"  style="display:none">
     <div class="col">
-        <p>Blazor code below. BlazorDownloadFile is a Javascript function on this page that handles the download of the workbook created in Blazor.</p>
+        <p>C# code below
         <pre>
         <code class="language-csharp hljs">
 @Html.Raw("@using System.IO")
@@ -239,13 +221,7 @@
         </pre>
     </div>
 </div>
-<div class="row js"  style="display:none">
-    <div class="col">
-        <pre>
-        <code class="language-js hljs" id="js-code"></code>
-        </pre>
-    </div>
-</div>
+
 <script type="text/javascript" id="chart-script">
 
     function getCities(){
@@ -370,5 +346,16 @@
             jQuery("#tab-csharp").removeClass("active");
             jQuery("#tab-js").addClass("active");
         });
+    });
+
+    const form = document.querySelector('form');
+    const btn = document.getElementById('btn-submit-form');
+    const spinner = document.getElementById('btnSpinner');
+    const text = document.getElementById('btnText');
+
+    jQuery("#btn-submit-form").click(function (e) => {
+        e.preventDefault();
+        jQuery("#btn-submit-form").disabled = true;
+        spinner.classList.remove('d-none');
     });
 </script>

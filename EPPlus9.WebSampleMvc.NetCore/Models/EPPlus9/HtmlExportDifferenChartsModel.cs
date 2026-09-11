@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
+using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Drawing.Chart.Style;
 using OfficeOpenXml.Export.HtmlExport;
@@ -11,6 +12,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Composition;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -157,9 +159,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
         public string Css { get; private set; }
         public string SvgChart { get; private set; }
 
-        public async Task LoadHtmlAndChartExport(SelectedChartType selectedChartType, ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
+        public async Task LoadHtmlAndChartExport()
         {
-            var package = CreateWorkbook(selectedChartType, chartStyle, tableStyle);
+            var package = CreateWorkbook(ChartType, ChartStyle, TableStyle);
             var sheet = package.Workbook.Worksheets[0];
             var exporter = sheet.Cells.CreateHtmlExporter();
             var settings = exporter.Settings;
@@ -185,30 +187,43 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             sheet.Cells["B2:C7"].Style.Numberformat.Format = "#,##0";
             sheet.Cells["D2:D7"].Style.Numberformat.Format = "#,##0.00%";
             ExcelChart chart;
-            switch(chartType)
+            switch (chartType)
             {
                 case SelectedChartType.ComboChart:
                     chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.ColumnClustered);
-                    chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
-                    chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    var s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    var s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
                     var lineChartType = chart.PlotArea.ChartTypes.Add(eChartType.Line);
 
-                    lineChartType.UseSecondaryAxis=true;
-                    lineChartType.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    lineChartType.UseSecondaryAxis = true;
+                    var s3 = lineChartType.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    s3.HeaderAddress = sheet.Cells["D1"];
                     break;
                 case SelectedChartType.LineChart:
                     chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.LineMarkers);
-                    chart.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    var s=chart.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    s.HeaderAddress = sheet.Cells["D1"];
                     break;
                 case SelectedChartType.ColumnChart:
                     chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.ColumnClustered);
-                    chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
-                    chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
+                    var barChart = chart as ExcelBarChart;
+                    barChart.Overlap = -5;
+
                     break;
                 case SelectedChartType.BarChart:
                     chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.BarClustered);
-                    chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
-                    chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
+                    barChart = chart as ExcelBarChart;
+                    barChart.Overlap = -5;
                     break;
                 case SelectedChartType.PieChart:
                 default:
@@ -216,12 +231,14 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
                     chart.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
                     var pieChart = chart as ExcelPieChart;
                     chart.StyleManager.SetChartStyle(chartStyle);
-                    pieChart.DataLabel.ShowLegendKey = true;
                     pieChart.DataLabel.ShowPercent = true;
+                    pieChart.DataLabel.Border.Fill.Style=eFillStyle.SolidFill;
+                    pieChart.DataLabel.Border.Fill.Color = Color.Black;
+                    pieChart.DataLabel.Fill.Style = eFillStyle.SolidFill;
+                    pieChart.DataLabel.Fill.Color = Color.LightCoral;
                     chart.SetPosition(2, 0, 5, 0);
                     chart.SetSize(1100, 300);
                     return package;
-                    break;
             }
 
             chart.StyleManager.SetChartStyle(chartStyle);

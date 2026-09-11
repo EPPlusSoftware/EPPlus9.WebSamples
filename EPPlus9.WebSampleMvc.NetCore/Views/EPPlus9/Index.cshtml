@@ -1,10 +1,68 @@
 ﻿@{
     ViewData["Title"] = "EPPlus 9-Samples";
 }
-
+    
     <div class="row mt-4">
         <div class="col-12">
-            <h3>Welcome to the sample project for EPPlus 9 Preview!</h3>
+        <h1 class="display-6">EPPlus 9 Preview</h1>
+        <p class="lead mt-3">
+            EPPlus 9 brings two major new capabilities: native <strong>PDF export</strong> and
+            <strong>SVG export</strong> — turning worksheets and charts into crisp, scalable graphics
+            or ready-to-share PDFs, directly from your .NET code, no external dependencies. Built entirely
+            on .NET, it runs anywhere your app does — from Windows Server to Nano Server, WebAssembly,
+            or a lightweight Linux container.
+        </p>
+
+        <h2 class="h5 text-uppercase text-muted mb-4">Explore the new features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card sample-card">
+                    <div class="card-body">
+                        <span class="badge bg-secondary text-bg-info mb-2">Sample 1</span>
+                        <h5 class="card-title">Worksheet Export</h5>
+                        <p class="card-text text-muted">
+                            A full worksheet export combining a line chart with a table of FX rate data.
+                            This export uses the GetSinglePage method of the html export as uses the chart object size, row height and column width to display the sheet as-is.
+                        </p>
+                        <a href="/EPPlus9/HtmlExportWithCharts/">Sample 1&rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card sample-card">
+                    <div class="card-body">
+                        <span class="badge bg-secondary text-bg-info mb-2">Sample 2</span>
+                        <h5 class="card-title">SVG Chart Gallery</h5>
+                        <p class="card-text text-muted">
+                            Every chart type supported by SVG export: bar, column, line, pie, and combo charts                            
+                        </p>
+                        <a href="/EPPlus9/HtmlExportDifferentCharts/">Sample 2&rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card sample-card">
+                    <div class="card-body">
+                        <span class="badge bg-secondary text-bg-info mb-2">Sample 3</span>
+                        <h5 class="card-title">PDF Export</h5>
+                        <p class="card-text text-muted">
+                            A worksheet exported straight into a polished PDF document.
+                        </p>
+                        <a href="/EPPlus9/PdfExport/">Sample 3&rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+@* Sample 1 — Worksheet Export
+A worksheet combining a line chart with a table of live-scale FX rate data.
+
+Sample 2 — SVG Chart Gallery
+Every chart type supported by SVG export: bar, column, line, pie, and combo charts mixing bar, column, and line series.
+
+Sample 3 — PDF Export
+A worksheet exported straight into a polished PDF document.</p>
             <ul>
                 <li><a href="/EPPlus9/HtmlExportWithCharts/">Html export with Drawings as Svg</a></li>
                 <li><a href="/EPPlus9/HtmlExportDifferentCharts/">Export Drawings as Svg</a></li>
@@ -34,10 +92,13 @@
 }
             </pre>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <h3>Clone this repo</h3>
-            <p>You can explore the code in this web app by cloning this <a href="https://github.com/EPPlusSoftware/EPPlus9.WebSamples" target="blank">Github repository</a></p>
+    </div> *@
+            <div class="row mt-3">
+                <div class="col">
+                    <h3>Clone this repo</h3>
+                    <p>You can explore the code in this web app by cloning this <a href="https://github.com/EPPlusSoftware/EPPlus9.WebSamples" target="blank">Github repository</a></p>
+                </div>
+            </div>
         </div>
     </div>
+</div>

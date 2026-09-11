@@ -1,21 +1,34 @@
 ﻿using EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart.Style;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace EPPlus9.WebSampleMvc.NetCore.Controllers
 {
     public class EPPlus9Controller : Controller
     {
-        private const string ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        IWebHostEnvironment _env;
+        public EPPlus9Controller(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+        private const string ContentTypeExcel = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        private const string ContentTypePdf = "application/pdf";
 
         public IActionResult Index()
         {
             return View();
         }
-        public async Task<IActionResult> HtmlExportwithCharts(HtmlExportWithChartModel model)
+        public async Task<IActionResult> HtmlExportwithCharts(HtmlExportWithChartModel model, string action)
         {
+            if (action == "download")
+            {
+                return File(HtmlExportWithChartModel.CreateWorkbook(model.ChartStyle, model.TableStyle).GetAsByteArray(), ContentTypeExcel);
+            }
             await model.LoadHtmlAndChartExport(model.ChartStyle, model.TableStyle);            
             return View(model);
         }
@@ -23,29 +36,31 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         {
             if(action=="download")
             {
-                return File(HtmlExportDifferentChartsModel.CreateWorkbook(model.ChartType, model.ChartStyle, model.TableStyle).GetAsByteArray(), ContentType);
+                return File(HtmlExportDifferentChartsModel.CreateWorkbook(model.ChartType, model.ChartStyle, model.TableStyle).GetAsByteArray(), ContentTypeExcel);
             }
-            else
+            await model.LoadHtmlAndChartExport();
+            return View(model);
+        }
+        public async Task<IActionResult> PdfExport(PdfExportModel model, string action)
+        {
+            if(action=="pdf")
             {
-                await model.LoadHtmlAndChartExport(model.ChartType, model.ChartStyle, model.TableStyle);
-                return View(model);
+                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                pck.Save(); //Must save to get it to work?
+                using (var pck2 = new ExcelPackage(pck.Stream))
+                {
+                    var ms = new MemoryStream();
+                    pck2.Workbook.Worksheets[0].SaveAsPdf(ms);
+                    return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
+                }
             }
-        }
-        public async Task<IActionResult> DownloadWorkbook(HtmlExportWithChartModel model)
-        {
-            return File(HtmlExportWithChartModel.CreateWorkbook(model.ChartStyle, model.TableStyle).GetAsByteArray(), ContentType);
-        }
-        public async Task<IActionResult> DownloadDifferentChartWorkbook(HtmlExportDifferentChartsModel model)
-        {
-            return File(HtmlExportDifferentChartsModel.CreateWorkbook(model.ChartType, model.ChartStyle, model.TableStyle).GetAsByteArray(), ContentType);
-        }
-        public IActionResult DrawingsAsSvg()
-        {
-            return View();
-        }
-        public IActionResult PdfExport()
-        {
-            return View();
+            if(action=="excel")
+            {
+                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
+            }
+            await model.LoadHtml(_env.WebRootPath);
+            return View(model);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿    @model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportWithChartModel;
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportWithChartModel;
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
@@ -22,7 +22,7 @@
                 <a href="#" class="text-secondary disabled">&laquo; Previous sample</a>
             </div>
             <div class="col-6 text-right">
-                <a  href="#" class="text-secondary disabled">Next sample &raquo;</a>
+                <a href="/EPPlus9/HtmlExportDifferentCharts">Next sample &raquo;</a>
             </div>
         </div>
     </div>
@@ -56,15 +56,12 @@
             @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
         </div>
     </div>
-    <div class="row">
+    <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
-            <button type="submit" class="btn btn-sm btn-primary" id="btn-submit-form" style="min-width:90px">
-                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="btnSpinner"></span>
-                <span id="btnText">Reload</span>
-            </button>
+            <button type="submit" class="btn btn-sm btn-primary" name="action" value="submit" id="btn-submit-form">Reload</button>
         </div>
-        <div class="col-sm-3 col-md-2">
-            <a href="/EPPlus9/DownloadWorkbook" class="btn btn-sm btn-primary">Download workbook</a>
+        <div class="col-sm-1 col-md-2">
+            <button type="submit" class="btn btn-sm btn-primary" name="action" value="download">Download Workbook</button>
         </div>
     </div>
     <div class="row mt-3">

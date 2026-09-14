@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.7.12002.237
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPPlus9.WebSampleMvc.NetCore", "EPPlus9.WebSampleMvc.NetCore\EPPlus9.WebSampleMvc.NetCore.csproj", "{A8E619E5-BBBA-44C9-873A-5A1B962FDE1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPPlus9.WebSampleMvc", "EPPlus9.WebSampleMvc.NetCore\EPPlus9.WebSampleMvc.csproj", "{A8E619E5-BBBA-44C9-873A-5A1B962FDE1A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlus.WebSample.Blazor", "EPPlus.WebSample.Blazor\EPPlus.WebSample.Blazor.csproj", "{4D53CD5A-DDD9-4DD7-B4A3-088E4A2E5F84}"
 EndProject

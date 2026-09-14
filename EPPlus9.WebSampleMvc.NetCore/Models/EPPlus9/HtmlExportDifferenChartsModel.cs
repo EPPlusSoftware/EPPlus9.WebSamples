@@ -223,7 +223,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
                     s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
                     s2.HeaderAddress = sheet.Cells["C1"];
                     barChart = chart as ExcelBarChart;
-                    barChart.Overlap = -5;
+                    barChart.Overlap = -10;
                     break;
                 case SelectedChartType.PieChart:
                 default:

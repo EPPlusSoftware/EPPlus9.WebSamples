@@ -79,7 +79,6 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             Css = await exporter.GetCssStringAsync();   
         }
 
-        [HttpGet]
         public static ExcelPackage CreateWorkbook(ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
         {
             var package = new ExcelPackage();

@@ -46,13 +46,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             if(action=="pdf")
             {
                 using var pck = model.CreateWorkbook(_env.WebRootPath);
-                //pck.Save(); //Must save to get it to work?
-                //using (var pck2 = new ExcelPackage(pck.Stream))
-                //{
-                    var ms = new MemoryStream();
-                    pck.Workbook.Worksheets[0].SaveAsPdf(ms);
-                    return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
-                //}
+                using  var ms = new MemoryStream();
+                pck.Workbook.Worksheets[0].SaveAsPdf(ms);
+                return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
             }
             if(action=="excel")
             {

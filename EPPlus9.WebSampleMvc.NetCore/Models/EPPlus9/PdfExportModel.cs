@@ -75,7 +75,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             //Set the header and footer values
             var text = sheet.HeaderFooter.OddHeader.Centered.AddText("EPPlus Sample 3");
             text.FontSize = 18;
-            var imageFile = Path.Combine(webRootPath, "img", "EPPlus-logo-small.jpg");
+            var imageFile = Path.Combine(webRootPath, "img", "EPPlus-logo-small.png");
             if (File.Exists(imageFile))
             {
                 //sheet.HeaderFooter.OddHeader.LeftAligned.AddText("Logo:");

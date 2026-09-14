@@ -1,4 +1,4 @@
-﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportModel;
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableModel;
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
@@ -22,7 +22,7 @@
                 <a href="/EPPlus9/HtmlExportDifferentCharts">&laquo; Previous sample</a>
             </div>
             <div class="col-6 text-right">
-                <a  href="#" class="text-secondary disabled">Next sample &raquo;</a>
+                <a href="/EPPlus9/PdfExportRange">Next sample &raquo;</a>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
 </div>
 <div class="row demo">
     <div class="col">
-        <form asp-action="PdfExport" method="post" id="form1">
+        <form asp-action="PdfExportTable" method="post" id="form1">
         @Html.AntiForgeryToken()
     <div class="row">
         <div class="col-sm-6 col-md-3">

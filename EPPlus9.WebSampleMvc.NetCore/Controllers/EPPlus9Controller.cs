@@ -1,9 +1,6 @@
 ﻿using EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml;
-using OfficeOpenXml.Drawing.Chart.Style;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -41,13 +38,13 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             await model.LoadHtmlAndChartExport();
             return View(model);
         }
-        public async Task<IActionResult> PdfExport(PdfExportModel model, string action)
+        public async Task<IActionResult> PdfExportTable(PdfExportTableModel model, string action)
         {
             if(action=="pdf")
             {
                 using var pck = model.CreateWorkbook(_env.WebRootPath);
                 using  var ms = new MemoryStream();
-                pck.Workbook.Worksheets[0].SaveAsPdf(ms);
+                pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
             }
             if(action=="excel")
@@ -56,6 +53,24 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
             }
             await model.LoadHtml(_env.WebRootPath);
+            return View(model);
+        }
+
+        public async Task<IActionResult> PdfExportRange(PdfExportRangeModel model, string action)
+        {
+            if (action == "pdf")
+            {
+                using var pck = model.CreateWorkbook(_env.ContentRootPath);
+                using var ms = new MemoryStream();
+                pck.Workbook.SaveAsPdf(ms);
+                return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 4.pdf");
+            }
+            if (action == "excel")
+            {
+                using var pck = model.CreateWorkbook(_env.ContentRootPath);
+                return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 4.xlsx");
+            }
+            await model.LoadHtml(_env.ContentRootPath);
             return View(model);
         }
     }

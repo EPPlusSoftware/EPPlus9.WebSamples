@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 {
-    public class PdfExportModel
+    public class PdfExportTableModel
     {
         public IEnumerable<SelectListItem> AllBuiltInTableStyles
         {

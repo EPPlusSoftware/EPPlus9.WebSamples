@@ -36,9 +36,6 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" id="tab-csharp">C#</a>
             </li>
-@*             <li class="nav-item">
-                <a class="nav-link" href="#" id="tab-js">Javascript</a>
-            </li> *@
         </ul>
     </div>
 </div>
@@ -83,6 +80,8 @@
         <p>C# code below.</p>
         <pre>
             <code class="language-csharp hljs">
+        public string Html { get; private set; }
+        public string Css { get; private set; }     
         public async Task LoadHtmlAndChartExport(ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
         {
             var package = CreateWorkbook(chartStyle, tableStyle);
@@ -92,6 +91,7 @@
             settings.Drawings.Include = eDrawingInclude.Include;
             settings.Culture = CultureInfo.InvariantCulture;
             
+            //Set absolute positioning and sizing.
             settings.Drawings.Position = eDrawingPosition.Absolute;
             settings.SetRowHeight = true;
             settings.SetColumnWidth = true;
@@ -151,12 +151,8 @@
 
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-    jQuery(".demo").show();
-    jQuery(".csharp").hide();
-        // jQuery(".js").hide();
-        // jQuery("#js-code").html(jQuery("#chart-script").html());
-        //let html = new DOMParser().parseFromString(jQuery("#table-container").innerHTML, "text/html").documentElement.textContent;
-        //jQuery("#html-code").html(html);
+        jQuery(".demo").show();
+        jQuery(".csharp").hide();
         hljs.highlightAll();
         jQuery("#tab-csharp").click(function (e) {
             e.preventDefault();
@@ -172,15 +168,6 @@
             jQuery("#tab-demo").addClass("active");
             jQuery("#tab-csharp").removeClass("active");
         });
-        // jQuery("#tab-js").click(function (e) {
-        //     e.preventDefault();
-        //     jQuery(".demo").hide();
-        //     jQuery(".csharp").hide();
-        //     jQuery(".js").show();
-        //     jQuery("#tab-demo").removeClass("active");
-        //     jQuery("#tab-csharp").removeClass("active");
-        //     jQuery("#tab-js").addClass("active");
-        // });
     });
 
     const form = document.querySelector('form');
@@ -189,7 +176,9 @@
     const text = document.getElementById('btnText');
 
     form.addEventListener('submit', (e) => {
-        btn.disabled = true;
-        spinner.classList.remove('d-none');
+        if (e.submitter && e.submitter.id === 'btn-submit-form') {
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+        }
     });
 </script>

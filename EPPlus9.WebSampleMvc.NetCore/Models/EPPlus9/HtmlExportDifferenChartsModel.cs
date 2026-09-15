@@ -175,7 +175,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             
             Html = await exporter.GetHtmlStringAsync(); // Get the HTML string for the worksheet without the chart as a table.
             Css = await exporter.GetCssStringAsync();   //Get the CSS string for the worksheet without the chart as a table. You could include the drawing in the css as a class, but in this case we want to export the chart as a separate SVG.
-            SvgChart = sheet.Drawings[0].ToSvg();       //Get the chart as a separate SVG string.
+            SvgChart = sheet.Drawings[0].ToSvg(x => { x.SvgSize.Width.SetPercent(100); x.SvgSize.Height.SetAuto(); });       //Get the chart as a separate SVG string.
         }
         
         public static ExcelPackage CreateWorkbook(SelectedChartType chartType, ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)

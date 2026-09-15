@@ -47,6 +47,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	<PackageReference Include="EPPlus" Version="9.0.0-preview" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EPPlus.WebSample.Blazor\EPPlus.WebSample.Blazor.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="data\CfExport1.xlsx">

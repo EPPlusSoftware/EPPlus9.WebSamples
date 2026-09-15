@@ -28,7 +28,7 @@
     <option value="9">Style 9</option>
     <option value="1">Style 10</option>
 </select>
-<button class="btn btn-primary" @onclick="()=>DownloadExcel(chartType, chartStyle)">Download workbook</button>
+<button class="btn btn-primary" @onclick="()=> DownloadExcel(chartType, chartStyle)">Download workbook</button>
 <button class="btn btn-primary" @onclick="() => ExportPdf(chartType, chartStyle)">Download as Pdf</button>
 <button class="btn btn-primary" @onclick="() => ExportSvg(chartType, chartStyle)">Export Chart as SVG</button>
 <img src="@svgDataUri" alt="Chart" />

@@ -1,4 +1,5 @@
 ﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportDifferentChartsModel;
+<style>@Html.Raw(Model.Css)</style>
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
@@ -68,20 +69,23 @@
     </div>
     <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
-            <button type="submit" class="btn btn-sm btn-primary" name="action" value="submit">Reload</button>
+            <button type="submit" class="btn btn-sm btn-primary mt-1" name="action" value="submit">Reload</button>
         </div>
         <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary" name="action" value="download">Download Workbook</button>
+             <button type="submit" class="btn btn-sm btn-primary mt-1" name="action" value="download">Download Workbook</button>
         </div>
     </div>
     <div class="row mt-3">
-        <div class="col">
-            <style>@Html.Raw(Model.Css)</style>
+        <div class="col p-2 m-2">
             @Html.Raw(Model.SvgChart)
-            @Html.Raw(Model.Html)
         </div>  
     </div>
-</form>
+    <div class="row mt-3">
+        <div class="col">
+            @Html.Raw(Model.Html)
+        </div>
+    </div>
+        </form>
     </div>
 </div>
 <div class="row csharp"  style="display:none">

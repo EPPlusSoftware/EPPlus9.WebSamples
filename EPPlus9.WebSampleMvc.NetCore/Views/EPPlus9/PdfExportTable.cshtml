@@ -49,6 +49,28 @@
             @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <div class="form-check">
+                @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-control-check", id = "chkShowFirstColumn" })
+                <label class="form-check-label">Show first column</label>
+            </div>
+            <div class="form-check">
+                @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-control-check", id = "chkShowLastColumn" })
+                <label class="form-check-label">Show last column</label>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <div class="form-check">
+                @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-control-check", id = "chkShowColumnStripes" })
+                <label class="form-check-label">Show column stripes</label>
+            </div>
+            <div class="form-check">
+                @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-control-check", id = "chkShowRowStripes" })
+                <label class="form-check-label">Show row stripes</label>
+            </div>
+        </div>
+    </div>
     <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
             <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="submit" id="btn-submit-form">
@@ -104,6 +126,53 @@
             jQuery("#tab-demo").addClass("active");
             jQuery("#tab-csharp").removeClass("active");
         });
+
+        var table = document.getElementsByClassName("epplus-table")[0];
+
+        // checkbox handler for show first column
+        var firstColCheckbox = document.getElementById('chkShowFirstColumn');
+        var firstColumnClass = "ts-@Model.TableStyleName.ToLower()-first-column";
+        firstColCheckbox.addEventListener("change", function() {
+            if (firstColCheckbox.checked) {
+                table.classList.add(firstColumnClass);
+            } else {
+                table.classList.remove(firstColumnClass);
+            }
+            updateTableClassInfo();
+        }, false);
+
+        // checkbox handler for show last column
+        var lastColCheckbox = document.getElementById('chkShowLastColumn');
+        var lastColumnClass = "ts-@Model.TableStyleName.ToLower()-last-column";
+        lastColCheckbox.addEventListener("change", function() {
+            if (lastColCheckbox.checked) {
+                table.classList.add(lastColumnClass);
+            } else {
+                table.classList.remove(lastColumnClass);
+            }
+        }, false);
+
+        // checkbox handler for show column stripes
+        var colStripesCheckbox = document.getElementById('chkShowColumnStripes');
+        var colStripesClass = "ts-@Model.TableStyleName.ToLower()-column-stripes";
+        colStripesCheckbox.addEventListener("change", function() {
+            if (colStripesCheckbox.checked) {
+                table.classList.add(colStripesClass);
+            } else {
+                table.classList.remove(colStripesClass);
+            }
+        }, false);
+
+        // checkbox handler for show row stripes
+        var rowStripesCheckbox = document.getElementById('chkShowRowStripes');
+        var rowStripesClass = "ts-@Model.TableStyleName.ToLower()-row-stripes";
+        rowStripesCheckbox.addEventListener("change", function() {
+            if (rowStripesCheckbox.checked) {
+                table.classList.add(rowStripesClass);
+            } else {
+                table.classList.remove(rowStripesClass);
+            }
+        }, false);
     });
 
     const form = document.querySelector('form');

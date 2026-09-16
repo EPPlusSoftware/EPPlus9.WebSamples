@@ -28,10 +28,21 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
                     .Select(x => new SelectListItem(x.ToString(), x.ToString()));
             }
         }
+        public bool ShowFirstColumn { get; set; }
+
+        public bool ShowLastColumn { get; set; }
+
+        public bool ShowColumnStripes { get; set; }
+
+        public bool ShowRowsStripes { get; set; }
+
         public TableStyles TableStyle { get; set; } = TableStyles.Dark3;
+
+        public string TableStyleName => TableStyle.ToString();
+
         public string Html { get; set; }
         public string Css { get; set; }
-        public ExcelPackage CreateWorkbook(string webRootPath)
+        public ExcelPackage CreateWorkbook(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
         {
             InitDataTable();
             var package = new ExcelPackage();
@@ -52,6 +63,10 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             table.Columns[3].CalculatedColumnFormula = $"{table.Name}[[#This Row],[Population]]/{table.Name}[[#This Row],[Area (km²)]]";
             table.Columns[3].Name = "Density";
             table.Columns[3].TotalsRowFunction = RowFunctions.Average;
+            table.ShowFirstColumn = showFirstColumn;
+            table.ShowLastColumn = showLastColumn;
+            table.ShowColumnStripes = showColumnStripes;
+            table.ShowRowStripes = showRowStripes;
             sheet.Calculate();
 
             //// format the header
@@ -194,9 +209,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             _dataTable.Rows.Add("Vietnam", 98168833, 331212);
         }
 
-        internal async Task LoadHtml(string webRootPath)
+        internal async Task LoadHtml(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
         {
-            var package = CreateWorkbook(webRootPath);
+            var package = CreateWorkbook(webRootPath, showFirstColumn, showLastColumn, showColumnStripes, showRowStripes);
             
             var sheet = package.Workbook.Worksheets[0];
             var exporter = sheet.Cells.CreateHtmlExporter();

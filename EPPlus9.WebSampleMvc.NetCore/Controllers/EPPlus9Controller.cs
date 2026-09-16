@@ -42,17 +42,18 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         {
             if(action=="pdf")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
                 using  var ms = new MemoryStream();
                 pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
             }
             if(action=="excel")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
             }
-            await model.LoadHtml(_env.WebRootPath);
+            model.ShowRowsStripes = true;
+            await model.LoadHtml(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
             return View(model);
         }
 

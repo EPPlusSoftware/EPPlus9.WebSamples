@@ -41,11 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="EPPlus" Version="9.0.0-preview" />
 	<PackageReference Include="Faker.Net" Version="2.0.163" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-	<PackageReference Include="EPPlus" Version="9.0.0-preview" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus.WebSample.Blazor\EPPlus.WebSample.Blazor.csproj" />
@@ -55,5 +55,9 @@
     <None Update="data\CfExport1.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 </Project>

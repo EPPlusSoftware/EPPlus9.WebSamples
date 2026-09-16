@@ -1,4 +1,5 @@
 ﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportWithChartModel;
+<style>@Html.Raw(Model.Css)</style>
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
@@ -44,31 +45,28 @@
 <form asp-action="HtmlExportwithCharts" method="post" id="form1">
     @Html.AntiForgeryToken()
     <div class="row">
-        <div class="col-sm-6 col-md-3">
-            <div class="form-group">
-                <label>Chart style</label>
-                @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
-            </div>
+        <div class="col-sm-6 col-md-3 form-group">
+            <label>Chart style</label>
+            @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-3 form-group">
             <label>Table style</label>
             @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
         </div>
     </div>
     <div class="row mt-3">
         <div class="col-sm-1 col-md-1">
-                <button type="submit" class="btn btn-sm btn-primary" name="action" value="submit" id="btn-submit-form" style="min-width: 90px;">
+                <button type="submit" class="btn btn-sm btn-primary mt-2 mr-2" name="action" value="submit" id="btn-submit-form" style="min-width: 90px;">
                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="btnSpinner"></span>
                 <span id="btnText">Reload</span>
             </button>
         </div>
         <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary" name="action" value="download">Download Workbook</button>
+            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="download">Download Workbook</button>
         </div>
     </div>
     <div class="row mt-3">
-        <div class="col-sm-12 col-md-6">
-            <style>@Html.Raw(Model.Css)</style>       
+        <div class="col-sm-12 col-md-6">     
             @Html.Raw(Model.Html)
         </div>
     </div>

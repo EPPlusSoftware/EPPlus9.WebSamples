@@ -86,7 +86,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> HtmlExportShapesToSvg(HtmlExportShapesToSvgModel model, string shape, string action)
         {
-            var package = model.CreateWorkbookWithShape(shape);
+            var package = model.CreateWorkbookWithShape(shape, action);
             model.SelectedShapeName = shape;
             if (action == "excel")
             {

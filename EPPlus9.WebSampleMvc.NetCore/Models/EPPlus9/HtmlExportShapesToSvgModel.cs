@@ -31,7 +31,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
         }
 
 
-        public ExcelPackage CreateWorkbookWithShape(string shapeStyleName)
+        public ExcelPackage CreateWorkbookWithShape(string shapeStyleName, string action)
         {
             Enum.TryParse(shapeStyleName, out eShapeStyle shapeStyle);
             var package = new ExcelPackage();
@@ -40,7 +40,10 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             shape.Text = shapeStyleName;
             shape.SetPosition(100, 100);
             shape.SetSize(600, 600);
-            Svg = shape.ToSvg();
+            if(action != "excel0")
+            {
+                Svg = shape.ToSvg();
+            }
             return package;
         }
     }

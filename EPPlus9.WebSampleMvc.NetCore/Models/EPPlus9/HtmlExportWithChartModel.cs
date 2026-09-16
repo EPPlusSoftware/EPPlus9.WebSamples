@@ -123,7 +123,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
             var textBox = sheet.Drawings.AddShape("InfoBox", eShapeStyle.Rect);
             textBox.RichText.Add("This is a line chart with data from the table below. The chart is exported as SVG when exporting to HTML.");
-            textBox.SetPosition(2, 0, 10, 0);
+            textBox.SetPosition(2, 0, 11, 0);
             textBox.SetSize(300, 200);
             
             return package;

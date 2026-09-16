@@ -1,4 +1,7 @@
 ﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableModel;
+@{
+    var showTableOptions = false;
+}
 <div class="row">
     <div class="col">
         <nav aria-label="breadcrumb">
@@ -49,28 +52,32 @@
             @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12 col-md-6">
-            <div class="form-check">
-                @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-control-check", id = "chkShowFirstColumn" })
-                <label class="form-check-label">Show first column</label>
-            </div>
-            <div class="form-check">
-                @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-control-check", id = "chkShowLastColumn" })
-                <label class="form-check-label">Show last column</label>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-6">
-            <div class="form-check">
-                @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-control-check", id = "chkShowColumnStripes" })
-                <label class="form-check-label">Show column stripes</label>
-            </div>
-            <div class="form-check">
-                @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-control-check", id = "chkShowRowStripes" })
-                <label class="form-check-label">Show row stripes</label>
-            </div>
-        </div>
-    </div>
+@if(showTableOptions)
+{
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-control-check", id = "chkShowFirstColumn" })
+                            <label class="form-check-label">Show first column</label>
+                        </div>
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-control-check", id = "chkShowLastColumn" })
+                            <label class="form-check-label">Show last column</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-control-check", id = "chkShowColumnStripes" })
+                            <label class="form-check-label">Show column stripes</label>
+                        </div>
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-control-check", id = "chkShowRowStripes" })
+                            <label class="form-check-label">Show row stripes</label>
+                        </div>
+                    </div>
+                </div>
+}
+   
     <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
             <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="submit" id="btn-submit-form">

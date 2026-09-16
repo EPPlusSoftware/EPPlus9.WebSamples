@@ -74,5 +74,24 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             await model.LoadHtml(_env.ContentRootPath);
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> HtmlExportShapesToSvg()
+        {
+            var model = new HtmlExportShapesToSvgModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HtmlExportShapesToSvg(HtmlExportShapesToSvgModel model, string shape, string action)
+        {
+            var package = model.CreateWorkbookWithShape(shape);
+            if(action == "excel")
+            {
+                return File(package.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 5.xlsx");
+            }
+            return View(model);
+        }
     }
 }

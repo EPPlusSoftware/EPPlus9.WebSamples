@@ -28,16 +28,27 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
                     .Select(x => new SelectListItem(x.ToString(), x.ToString()));
             }
         }
+        public bool ShowFirstColumn { get; set; }
+
+        public bool ShowLastColumn { get; set; }
+
+        public bool ShowColumnStripes { get; set; }
+
+        public bool ShowRowsStripes { get; set; }
+
         public TableStyles TableStyle { get; set; } = TableStyles.Dark3;
+
+        public string TableStyleName => TableStyle.ToString();
+
         public string Html { get; set; }
         public string Css { get; set; }
-        public ExcelPackage CreateWorkbook(string webRootPath)
+        public ExcelPackage CreateWorkbook(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
         {
             InitDataTable();
             var package = new ExcelPackage();
-            var sheet = package.Workbook.Worksheets.Add("Html export sample 2");
+            var sheet = package.Workbook.Worksheets.Add("Pdf export sample 4");
             var tableRange = sheet.Cells["A1"].LoadFromDataTable(_dataTable, true, TableStyle);
-            
+
             //Configure the table
             var table = sheet.Tables.GetFromRange(tableRange);
             table.Sort(x => x.SortBy.ColumnNamed("Population", eSortOrder.Descending));
@@ -49,9 +60,15 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             //Add column for population density
             table.Columns.Add(1);
             tableRange = table.Range;
-            table.Columns[3].CalculatedColumnFormula = $"{table.Name}[[#This Row],[Population]]/{table.Name}[[#This Row],[Area (km2)]]";
+            table.Columns[3].CalculatedColumnFormula = $"{table.Name}[[#This Row],[Population]]/{table.Name}[[#This Row],[Area (km²)]]";
             table.Columns[3].Name = "Density";
             table.Columns[3].TotalsRowFunction = RowFunctions.Average;
+            
+            // uncomment this to enable the show functionality
+            //table.ShowFirstColumn = showFirstColumn;
+            //table.ShowLastColumn = showLastColumn;
+            //table.ShowColumnStripes = showColumnStripes;
+            //table.ShowRowStripes = showRowStripes;
             sheet.Calculate();
 
             //// format the header
@@ -61,31 +78,65 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             var lastDataRow = tableRange.End.Row - 1;
             sheet.Cells[tableRange.Start.Row, 1, lastDataRow, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             sheet.Cells[tableRange.Start.Row, 2, lastDataRow, 2].Style.Numberformat.Format = "#,##0";
-            sheet.Cells[tableRange.Start.Row, 3, lastDataRow, 3].Style.Numberformat.Format = "#,##0 \"km2\"";
+            sheet.Cells[tableRange.Start.Row, 3, lastDataRow, 3].Style.Numberformat.Format = "#,##0 \"km²\"";
             sheet.Cells[tableRange.Start.Row, 4, lastDataRow, 4].Style.Numberformat.Format = "#,##0.0";
 
             // format the total row
             var totalRow = tableRange.End.Row;
             sheet.Cells[totalRow, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             sheet.Cells[totalRow, 2].Style.Numberformat.Format = "#,##0";
-            sheet.Cells[totalRow, 3].Style.Numberformat.Format = "#,##0 \"km2\"";
+            sheet.Cells[totalRow, 3].Style.Numberformat.Format = "#,##0 \"km²\"";
             sheet.Cells[totalRow, 4].Style.Numberformat.Format = "\"Avg: \"#,##0.0 ";
             sheet.Cells.AutoFitColumns();
 
             //Set the header and footer values
-            var text = sheet.HeaderFooter.OddHeader.Centered.AddText("EPPlus Sample 3");
-            text.FontSize = 18;
+            SetHeader(sheet, webRootPath);
+            SetFooter(sheet);
+
+            sheet.PrinterSettings.TopMargin = 1.1;
+
+            return package;
+        }
+
+        private void SetHeader(ExcelWorksheet sheet, string webRootPath)
+        {
+            var oddHeader = sheet.HeaderFooter.OddHeader;
+
             var imageFile = Path.Combine(webRootPath, "img", "EPPlus-logo-small.png");
             if (File.Exists(imageFile))
             {
-                //sheet.HeaderFooter.OddHeader.LeftAligned.AddText("Logo:");
-                sheet.HeaderFooter.OddHeader.LeftAligned.AddImage(new FileInfo(imageFile));
+                oddHeader.LeftAligned.AddImage(new FileInfo(imageFile));
             }
 
-            sheet.HeaderFooter.OddFooter.Centered.AddPageNumber();
-            sheet.HeaderFooter.OddFooter.Centered.AddText(" of ");
-            sheet.HeaderFooter.OddFooter.Centered.AddNumberOfPages();
-            return package;
+            var title = oddHeader.RightAligned.AddText("Population & Area Report");
+            title.Bold = true;
+            title.FontSize = 9;
+            title.FontName = "Calibri";
+        }
+
+        private void SetFooter(ExcelWorksheet sheet)
+        {
+            var oddFooter = sheet.HeaderFooter.OddFooter;
+
+            var footerLeft = oddFooter.LeftAligned.AddText("EPPlus Software AB");
+            footerLeft.FontSize = 8;
+
+            var pageLabel = oddFooter.Centered.AddText("Page ");
+            pageLabel.FontSize = 9;
+            var pageNumber = oddFooter.Centered.AddPageNumber();
+            pageNumber.FontSize = 9;
+            var ofLabel = oddFooter.Centered.AddText(" of ");
+            ofLabel.FontSize = 9;
+            var pageCount = oddFooter.Centered.AddNumberOfPages();
+            pageCount.FontSize = 9;
+
+            var footerRight = oddFooter.RightAligned.AddText("Confidential  •  Generated ");
+            footerRight.Italic = true;
+            footerRight.FontSize = 8;
+
+            var dateItem = oddFooter.RightAligned.AddCurrentDate();
+            dateItem.Italic = true;
+            dateItem.FontSize = 8;
         }
         private DataTable _dataTable=null;
 
@@ -96,7 +147,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             _dataTable.Columns.Add("Country", typeof(string));
             _dataTable.Columns.Add("Population", typeof(int));
             var areaCol = _dataTable.Columns.Add("Area", typeof(int));
-            areaCol.Caption = "Area (km2)";
+            areaCol.Caption = "Area (km²)";
 
 
             _dataTable.Rows.Add("Sweden", 10409248, 450295);
@@ -160,9 +211,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             _dataTable.Rows.Add("Vietnam", 98168833, 331212);
         }
 
-        internal async Task LoadHtml(string webRootPath)
+        internal async Task LoadHtml(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
         {
-            var package = CreateWorkbook(webRootPath);
+            var package = CreateWorkbook(webRootPath, showFirstColumn, showLastColumn, showColumnStripes, showRowStripes);
             
             var sheet = package.Workbook.Worksheets[0];
             var exporter = sheet.Cells.CreateHtmlExporter();

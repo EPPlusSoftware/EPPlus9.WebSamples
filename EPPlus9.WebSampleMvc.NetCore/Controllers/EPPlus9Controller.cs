@@ -42,17 +42,18 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         {
             if(action=="pdf")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
                 using  var ms = new MemoryStream();
                 pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
             }
             if(action=="excel")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
             }
-            await model.LoadHtml(_env.WebRootPath);
+            model.ShowRowsStripes = true;
+            await model.LoadHtml(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes);
             return View(model);
         }
 
@@ -71,6 +72,26 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 4.xlsx");
             }
             await model.LoadHtml(_env.ContentRootPath);
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> HtmlExportShapesToSvg()
+        {
+            var model = new HtmlExportShapesToSvgModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HtmlExportShapesToSvg(HtmlExportShapesToSvgModel model, string shape, string action)
+        {
+            var package = model.CreateWorkbookWithShape(shape);
+            model.SelectedShapeName = shape;
+            if (action == "excel")
+            {
+                return File(package.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 5.xlsx");
+            }
             return View(model);
         }
     }

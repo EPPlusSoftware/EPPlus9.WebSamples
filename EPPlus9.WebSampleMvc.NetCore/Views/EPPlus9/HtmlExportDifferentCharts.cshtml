@@ -23,7 +23,7 @@
                 <a href="EPPlus9/HtmlExportwithCharts">&laquo; Previous sample</a>
             </div>
             <div class="col-6 text-right">
-                <a href="EPPlus9/PdfExport">Next sample &raquo;</a>
+                <a href="EPPlus9/PdfExportTable">Next sample &raquo;</a>
             </div>
         </div>
     </div>
@@ -44,29 +44,20 @@
     <div class="col">
         <form asp-action="HtmlExportDifferentCharts" method="post" id="form1">
     @Html.AntiForgeryToken()
-    <div class="row">
-        <div class="col-sm-4 col-md-2">
-            <label>Chart Type</label>
-        </div>
-        <div class="col-sm-4 col-md-2">
-            <label>Chart Style</label>
-        </div>
-        <div class="col-sm-4 col-md-2">
-            <label>Table Style</label>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-4 col-md-2">
-            @Html.DropDownListFor(x => x.ChartType, Model.SupportedChartTypes, new { @class = "form-control" })
-        </div>
-        <div class="col-sm-4 col-md-2">
-            @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
-        </div>
-        <div class="col-sm-4 col-md-2">
-            @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
-        </div>
-    </div>
+            <div class="row">
+                <div class="col-sm-4 col-md-2 form-group">
+                    <label>Chart Type</label>
+                    @Html.DropDownListFor(x => x.ChartType, Model.SupportedChartTypes, new { @class = "form-control" })
+                </div>
+                <div class="col-sm-4 col-md-2 form-group">
+                    <label>Chart Style</label>
+                    @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
+                </div>
+                <div class="col-sm-4 col-md-2 form-group">
+                    <label>Table Style</label>
+                    @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
+                </div>
+            </div>
     <div class="row mt-3">
         <div class="col-sm-2 col-md-1">
             <button type="submit" class="btn btn-sm btn-primary mt-1" name="action" value="submit">Reload</button>
@@ -119,10 +110,17 @@
             jQuery("#tab-csharp").removeClass("active");
         });
 
-    form.addEventListener('submit', (e) => {
-        if (e.submitter && e.submitter.id === 'btn-submit-form') {
-            btn.disabled = true;
-            spinner.classList.remove('d-none');
+        const form = document.querySelector("form");
+        const btn = document.getElementById("btn-submit-form");
+        const spinner = document.querySelector(".spinner"); // adjust selector as needed
+
+        if(form){
+            form.addEventListener('submit', (e) => {
+                if (e.submitter && e.submitter.id === 'btn-submit-form') {
+                    btn.disabled = true;
+                    spinner.classList.remove('d-none');
+                }
+            });
         }
     });
 </script>

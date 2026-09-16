@@ -87,7 +87,8 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         public async Task<IActionResult> HtmlExportShapesToSvg(HtmlExportShapesToSvgModel model, string shape, string action)
         {
             var package = model.CreateWorkbookWithShape(shape);
-            if(action == "excel")
+            model.SelectedShapeName = shape;
+            if (action == "excel")
             {
                 return File(package.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 5.xlsx");
             }

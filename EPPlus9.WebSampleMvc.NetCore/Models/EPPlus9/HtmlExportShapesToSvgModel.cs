@@ -23,6 +23,8 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             }
         }
 
+        public string SelectedShapeName { get; set; }
+
         public string Svg 
         {
             get; set;

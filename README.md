@@ -1,5 +1,5 @@
 # EPPlus.WebSamples
-Webapplication that demonstrates EPPlus 6 in ASP.NET MVC and Blazor.
+Webapplication that demonstrates EPPlus 9 in ASP.NET MVC and Blazor.
 * HTML/CSS export
 * JSON export
 * Web Assembly/Blazor sample

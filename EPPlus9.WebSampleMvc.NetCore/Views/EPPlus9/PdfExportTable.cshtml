@@ -1,0 +1,183 @@
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableModel;
+@{
+    var showTableOptions = true;
+}
+<div class="row">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/EPPlus9">EPPlus 9 samples</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 3</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <h4>Export a workbook with a table to PDF</h4>
+    </div>
+</div>
+<div class="row my-2">
+    <div class="col bg-light rounded">
+        <div class="row">
+            <div class="col-6">
+                <a href="/EPPlus9/HtmlExportDifferentCharts">&laquo; Previous sample</a>
+            </div>
+            <div class="col-6 text-right">
+                <a href="/EPPlus9/PdfExportRange">Next sample &raquo;</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col my-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="tab-demo">Demo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-csharp">C#</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row demo">
+    <div class="col">
+        <div class="alert alert-info border border-info rounded">
+            <p>Note that this version of EPPlus is a preview release. Work on PDF support for Excel tables is still ongoing.</p>
+        </div>
+        <form asp-action="PdfExportTable" method="post" id="form1">
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <label>Table style</label>
+            @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
+        </div>
+    </div>
+@if(showTableOptions)
+{
+                <div class="row mt-2">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-check-input", id = "chkShowFirstColumn" })
+                            <label class="form-check-label" for="chkShowFirstColumn">Show first column</label>
+                        </div>
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-check-input", id = "chkShowLastColumn" })
+                            <label class="form-check-label" for="chkShowLastColumn">Show last column</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-check-input", id = "chkShowColumnStripes" })
+                            <label class="form-check-label" for="chkShowColumnStripes">Show column stripes</label>
+                        </div>
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-check-input", id = "chkShowRowStripes" })
+                            <label class="form-check-label" for="chkShowRowStripes">Show row stripes</label>
+                        </div>
+                    </div>
+                </div>
+}
+    <div class="row mt-3">
+        <div class="col-12">
+            <button type="submit" id="previewButton" class="btn btn-sm btn-primary mt-2" name="action" value="submit">
+                <i id="previewIcon" class="fa-solid fa-rotate mr-1" aria-hidden="true"></i>
+                <span id="previewText">Update preview</span>
+            </button>
+            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="excel">
+                <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+            </button>
+            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="pdf">
+                <i class="fa-regular fa-file-pdf mr-1" aria-hidden="true"></i> Download PDF
+            </button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-sm-12 col-md-6">
+            <style>@Html.Raw(Model.Css)</style>       
+            @Html.Raw(Model.Html)
+        </div>
+    </div>
+</form>
+    </div>
+</div>
+<div class="row csharp"  style="display:none">
+    <div class="col">
+        <p>C# code below
+            <pre><code class="language-csharp">using var pck = model.CreateWorkbook(_env.WebRootPath); // Create the workbook
+using var ms = new MemoryStream();
+pck.Workbook.Worksheets[0].SaveAsPdf(ms);
+return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
+    </div>
+</div>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        jQuery(".demo").show();
+        jQuery(".csharp").hide();
+        hljs.highlightAll();
+        jQuery("#tab-csharp").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").show();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").addClass("active");
+        });
+        jQuery("#tab-demo").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").show();
+            jQuery(".csharp").hide();
+            jQuery("#tab-demo").addClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+        });
+
+            // Toggle table style classes in the preview when the checkboxes change
+            const table = document.querySelector(".epplus-table");
+            const tableStylePrefix = "ts-@Model.TableStyleName.ToLower()";
+
+            const bindTableOption = (checkboxId, classSuffix) => {
+                const checkbox = document.getElementById(checkboxId);
+                if (!table || !checkbox) return;
+                checkbox.addEventListener("change", () => {
+                    table.classList.toggle(`${tableStylePrefix}-${classSuffix}`, checkbox.checked);
+                });
+            };
+
+            bindTableOption("chkShowFirstColumn", "first-column");
+            bindTableOption("chkShowLastColumn", "last-column");
+            bindTableOption("chkShowColumnStripes", "column-stripes");
+            bindTableOption("chkShowRowStripes", "row-stripes");
+
+            // Spinner on the preview button
+            const form = document.getElementById("form1");
+            const previewButton = document.getElementById("previewButton");
+            const previewIcon = document.getElementById("previewIcon");
+            const previewText = document.getElementById("previewText");
+            let isSubmitting = false;
+
+            const setLoading = (isLoading) => {
+                isSubmitting = isLoading;
+                // Use the "disabled" class, not the attribute. A disabled submit button
+                // is excluded from the posted form data, so action=submit would be lost.
+                previewButton.classList.toggle("disabled", isLoading);
+                previewButton.setAttribute("aria-disabled", isLoading ? "true" : "false");
+                previewIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-rotate mr-1";
+                previewText.textContent = isLoading ? "Updating..." : "Update preview";
+            };
+
+            form.addEventListener("submit", (e) => {
+                // Only the preview button gets a spinner. The download buttons return
+                // files, so the page is never reloaded and the spinner would never stop.
+                if (e.submitter !== previewButton) return;
+
+                if (isSubmitting) {
+                    e.preventDefault(); // Prevent double submits
+                    return;
+                }
+                setLoading(true);
+            });
+
+            // Reset the button if the page is restored from the back/forward cache
+            window.addEventListener("pageshow", () => setLoading(false));
+    });
+    </script>

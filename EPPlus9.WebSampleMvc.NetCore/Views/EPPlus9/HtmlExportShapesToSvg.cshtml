@@ -1,0 +1,198 @@
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportShapesToSvgModel;
+<style>
+    /* Make the generated SVG scale down to the available width on small screens */
+    .svg-output svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+<div class="row">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/EPPlus9">EPPlus 9 samples</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 5</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <h4>Export shape to SVG</h4>
+    </div>
+</div>
+<div class="row my-2">
+    <div class="col bg-light rounded">
+        <div class="row">
+            <div class="col-6">
+                <a href="/EPPlus9/PdfExportRange">&laquo; Previous sample</a>
+            </div>
+            <div class="col-6 text-right">
+                <a href="#" class="text-secondary disabled">Next sample &raquo;</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col my-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="tab-demo">Demo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-csharp">C#</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row demo">
+    <div class="col">
+        <form id="svgForm" action="/EPPlus9/HtmlExportShapesToSvg" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label for="shape">Shape</label>
+                    <select class="form-control" id="shape" name="shape">
+                        @foreach (var shape in Model.AllShapes)
+                        {
+                            if (Model.SelectedShapeName == shape.ToString())
+                            {
+                                <option value="@shape" selected="selected">@shape</option>
+                            }
+                            else
+                            {
+                                <option value="@shape">@shape</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button type="submit" id="exportButton" class="btn btn-sm btn-primary mt-2">
+                        <i id="exportIcon" class="fa-solid fa-code mr-1" aria-hidden="true"></i>
+                        <span id="exportText">Export to SVG</span>
+                    </button>
+                    <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="excel">
+                        <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+                    </button>
+                </div>
+            </div>
+        </form>
+        @if (Model.Svg != null)
+        {
+            <div class="row mt-3">
+                <div class="col-sm-12 col-md-6">
+                    <h5>SVG Output:</h5>
+                    <div class="svg-output">
+                        @Html.Raw(Model.Svg)
+                    </div>
+                </div>
+            </div>
+          <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Only target the generated SVG, not any other SVG on the page
+                    var svg = document.querySelector('.svg-output svg');
+                    if (!svg) return;
+
+                    var viewBoxAttr = svg.getAttribute('viewBox');
+                    if (!viewBoxAttr) return;
+
+                    // Parse "minX minY width height"
+                    var parts = viewBoxAttr.trim().split(/\s+/).map(Number);
+                    var minX = parts[0];
+                    var minY = parts[1];
+                    var width = parts[2];
+                    var height = parts[3];
+
+                    var scale = 1.3; // 30% larger
+
+                    var newWidth = width * scale;
+                    var newHeight = height * scale;
+
+                    // Keep the content centered by shifting the origin
+                    // by half of the added extra size
+                    var newMinX = minX - (newWidth - width) / 2;
+                    var newMinY = minY - (newHeight - height) / 2;
+
+                    svg.setAttribute('viewBox', newMinX + ' ' + newMinY + ' ' + newWidth + ' ' + newHeight);
+                });
+            </script>
+        }
+    </div>
+</div>
+<div class="row csharp" style="display:none">
+    <div class="col">
+        <p>C# code from the Model class below</p>
+        <pre><code class="language-csharp">public string Svg { get; set; }
+
+// Creates a workbook with the selected shape.
+// The SVG content is written to the Svg property.
+public ExcelPackage CreateWorkbookWithShape(string shapeStyleName)
+{
+    Enum.TryParse(shapeStyleName, out eShapeStyle shapeStyle);
+    var package = new ExcelPackage();
+    var ws = package.Workbook.Worksheets.Add("Shapes to SVG");
+    var shape = ws.Drawings.AddShape(shapeStyleName, shapeStyle);
+    shape.Text = shapeStyleName;
+    shape.SetPosition(100, 100);
+    shape.SetSize(600, 600);
+    Svg = shape.ToSvg();
+    return package;
+}</code></pre>
+    </div>
+</div>
+<script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            jQuery(".demo").show();
+            jQuery(".csharp").hide();
+            hljs.highlightAll();
+            jQuery("#tab-csharp").click(function(e) {
+                e.preventDefault();
+                jQuery(".demo").hide();
+                jQuery(".csharp").show();
+                jQuery("#tab-demo").removeClass("active");
+                jQuery("#tab-csharp").addClass("active");
+            });
+            jQuery("#tab-demo").click(function(e) {
+                e.preventDefault();
+                jQuery(".demo").show();
+                jQuery(".csharp").hide();
+                jQuery("#tab-demo").addClass("active");
+                jQuery("#tab-csharp").removeClass("active");
+            });
+
+            const form = document.getElementById("svgForm");
+            const exportButton = document.getElementById("exportButton");
+            const exportIcon = document.getElementById("exportIcon");
+            const exportText = document.getElementById("exportText");
+            let isSubmitting = false;
+
+            const setLoading = (isLoading) => {
+                isSubmitting = isLoading;
+                // Use the "disabled" class, not the attribute, to keep the same
+                // behavior as the other sample pages (a disabled submit button is not posted).
+                exportButton.classList.toggle("disabled", isLoading);
+                exportButton.setAttribute("aria-disabled", isLoading ? "true" : "false");
+                exportIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-code mr-1";
+                exportText.textContent = isLoading ? "Exporting..." : "Export to SVG";
+            };
+
+            form.addEventListener("submit", (e) => {
+                // Only the export button gets a spinner. The download button returns
+                // a file, so the page is never reloaded and the spinner would never stop.
+                if (e.submitter !== exportButton) return;
+
+                if (isSubmitting) {
+                    e.preventDefault(); // Prevent double submits
+                    return;
+                }
+                setLoading(true);
+            });
+
+            // Reset the button if the page is restored from the back/forward cache
+            window.addEventListener("pageshow", () => setLoading(false));
+        });
+</script>

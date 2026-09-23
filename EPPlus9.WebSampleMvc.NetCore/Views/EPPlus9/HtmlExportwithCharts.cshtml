@@ -1,0 +1,235 @@
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.HtmlExportWithChartModel;
+<style>@Html.Raw(Model.Css)</style>
+<div class="row">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/EPPlus9">EPPlus 9 samples</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sample 1</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <h4>Export a workbook with chart, table and textbox to html/svg</h4>
+    </div>
+</div>
+<div class="row my-2">
+    <div class="col bg-light rounded">
+        <div class="row">
+            <div class="col-6">
+                <a href="#" class="text-secondary disabled">&laquo; Previous sample</a>
+            </div>
+            <div class="col-6 text-right">
+                <a href="/EPPlus9/HtmlExportDifferentCharts">Next sample &raquo;</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col my-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="tab-demo">Demo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-csharp">C#</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-razor">View (html/Razor)</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row demo" style="display:none">
+    <div class="col">
+<form asp-action="HtmlExportwithCharts" method="post" id="form1">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-sm-6 col-md-3 form-group">
+            <label>Chart style</label>
+            @Html.DropDownListFor(x => x.ChartStyle, Model.AllChartStyles, new { @class = "form-control" })
+        </div>
+        <div class="col-sm-6 col-md-3 form-group">
+            <label>Table style</label>
+            @Html.DropDownListFor(x => x.TableStyle, Model.AllBuiltInTableStyles, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <button type="submit" id="exportButton" class="btn btn-sm btn-primary mt-2" name="action" value="submit">
+                <i id="exportIcon" class="fa-solid fa-code mr-1" aria-hidden="true"></i>
+                <span id="exportText">Export to HTML/SVG</span>
+            </button>
+            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="download">
+                <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+            </button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-sm-12 col-md-6">     
+            @Html.Raw(Model.Html)
+        </div>
+    </div>
+</form>
+    </div>
+</div>
+<div class="row csharp"  style="display:none">
+    <div class="col">
+        <p>C# code from the Model class below</p>
+        <pre>
+            <code class="language-csharp hljs">
+        public string Html { get; private set; }
+        public string Css { get; private set; }     
+        
+        public async Task LoadHtmlAndChartExport(ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
+        {
+            var package = CreateWorkbook(chartStyle, tableStyle);
+            var sheet = package.Workbook.Worksheets[0];
+            var exporter = sheet.Cells.CreateHtmlExporter();
+            var settings = exporter.Settings;
+            settings.Drawings.Include = eDrawingInclude.Include;
+            settings.Culture = CultureInfo.InvariantCulture;
+            
+            //Set absolute positioning and sizing.
+            settings.Drawings.Position = eDrawingPosition.Absolute;
+            settings.SetRowHeight = true;
+            settings.SetColumnWidth = true;
+            
+            settings.TableId = "currency-table";
+            
+            Html = await exporter.GetHtmlStringAsync();
+            Css = await exporter.GetCssStringAsync();   
+        }
+
+        public static ExcelPackage CreateWorkbook(ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
+        {
+            var package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Html export with svg chart");
+            var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+            if (csvFileInfo.Exists == false) return null;
+            var format = new ExcelTextFormat
+            {
+                Delimiter = ';',
+                Culture = CultureInfo.InvariantCulture,
+                DataTypes = new eDataTypes[] { eDataTypes.DateTime, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number }
+            };
+            var tableRange = sheet.Cells["A15"].LoadFromText(csvFileInfo, format, tableStyle, true);
+
+            sheet.Cells["B1:E1"].Style.HorizontalAlignment = (OfficeOpenXml.Style.ExcelHorizontalAlignment)ExcelHorizontalAlignment.Right;
+            sheet.Cells[tableRange.Start.Row, 1, tableRange.End.Row, 1].Style.Numberformat.Format = "yyyy-MM-dd";
+            sheet.Cells[tableRange.Start.Row, 2, tableRange.End.Row, 5].Style.Numberformat.Format = "#,##0.0000";
+            tableRange.AutoFitColumns();
+
+            var table = sheet.Tables.GetFromRange(tableRange);
+            table.ShowFirstColumn = true;
+            var chart = sheet.Drawings.AddLineChart("LineChart1", eLineChartType.Line);
+
+            var serie1 = chart.Series.Add(tableRange.TakeColumnsBetween(1, 1).SkipRows(1), tableRange.TakeColumns(1).SkipRows(1));
+            serie1.HeaderAddress = sheet.Cells["B15"];
+
+            var serie2 = chart.Series.Add(tableRange.TakeColumnsBetween(2, 1).SkipRows(1), tableRange.TakeColumns(1).SkipRows(1));
+            serie2.HeaderAddress = sheet.Cells["C15"]; 
+
+            var serie3 = chart.Series.Add(tableRange.TakeColumnsBetween(3, 1).SkipRows(1), tableRange.TakeColumns(1).SkipRows(1));
+            serie3.HeaderAddress = sheet.Cells["D15"];
+
+            var serie4 = chart.Series.Add(tableRange.TakeColumnsBetween(4, 1).SkipRows(1), tableRange.TakeColumns(1).SkipRows(1));
+            serie4.HeaderAddress = sheet.Cells["E15"];
+
+
+            chart.SetPosition(0, 0);
+            chart.To.Row = 14;
+            chart.To.Column = 10;
+            chart.StyleManager.SetChartStyle(chartStyle);
+
+            return package;
+            </code>
+        </pre>
+    </div>
+</div>
+@{
+    // Code samples shown on the page. Stored as C# strings so that Razor
+    // HTML-encodes them and does not execute the @-expressions.
+    const string cssSample = @"<style>@Html.Raw(Model.Css)</style>";
+
+    const string htmlSample = @"<div class=""row mt-3"">
+    <div class=""col"">
+        @Html.Raw(Model.Html)
+    </div>
+</div>";
+}
+<div class="row razor" style="display:none">
+    <div class="col">
+        <p>Code from the View to generate the html/css (including the chart and textbox svg-files) below</p>
+        <pre><code class="language-html">@cssSample</code></pre>
+        <pre><code class="language-html">@htmlSample</code></pre>
+    </div>
+</div>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        jQuery(".demo").show();
+        jQuery(".csharp").hide();
+        hljs.highlightAll();
+        jQuery("#tab-csharp").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").hide();
+            jQuery(".csharp").show();
+            jQuery(".razor").hide();
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-razor").removeClass("active");
+            jQuery("#tab-csharp").addClass("active");
+        });
+        jQuery("#tab-demo").click(function (e) {
+            e.preventDefault();
+            jQuery(".demo").show();
+            jQuery(".csharp").hide();
+            jQuery(".razor").hide();
+            jQuery("#tab-demo").addClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+            jQuery("#tab-razor").removeClass("active");
+        });
+        jQuery("#tab-razor").click(function(e) {
+            e.preventDefault();
+            jQuery(".razor").show();
+            jQuery(".demo").hide();
+            jQuery(".csharp").hide();
+            jQuery("#tab-razor").addClass("active");
+            jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+        });
+
+        const form = document.getElementById("form1");
+        const exportButton = document.getElementById("exportButton");
+        const exportIcon = document.getElementById("exportIcon");
+        const exportText = document.getElementById("exportText");
+        let isSubmitting = false;
+
+        const setLoading = (isLoading) => {
+            isSubmitting = isLoading;
+            // Use the "disabled" class, not the attribute. A disabled submit button
+            // is excluded from the posted form data, so action=submit would be lost.
+            exportButton.classList.toggle("disabled", isLoading);
+            exportButton.setAttribute("aria-disabled", isLoading ? "true" : "false");
+            exportIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-code mr-1";
+            exportText.textContent = isLoading ? "Exporting..." : "Export to HTML/SVG";
+        };
+
+        form.addEventListener("submit", (e) => {
+            // Only the export button gets a spinner. The download button returns
+            // a file, so the page is never reloaded and the spinner would never stop.
+            if (e.submitter !== exportButton) return;
+
+            if (isSubmitting) {
+                e.preventDefault(); // Prevent double submits
+                return;
+            }
+            setLoading(true);
+        });
+
+        // Reset the button if the page is restored from the back/forward cache
+        window.addEventListener("pageshow", () => setLoading(false));
+    });
+</script>

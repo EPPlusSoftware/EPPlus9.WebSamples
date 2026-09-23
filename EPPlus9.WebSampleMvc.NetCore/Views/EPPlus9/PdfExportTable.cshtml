@@ -1,6 +1,6 @@
 ﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableModel;
 @{
-    var showTableOptions = false;
+    var showTableOptions = true;
 }
 <div class="row">
     <div class="col">
@@ -15,7 +15,7 @@
 </div>
 <div class="row">
     <div class="col text-center">
-        <h4>Export a workbook with a table</h4>
+        <h4>Export a workbook with a table to PDF</h4>
     </div>
 </div>
 <div class="row my-2">
@@ -44,8 +44,10 @@
 </div>
 <div class="row demo">
     <div class="col">
+        <div class="alert alert-info border border-info rounded">
+            <p>Note that this version of EPPlus is a preview release. Work on PDF support for Excel tables is still ongoing.</p>
+        </div>
         <form asp-action="PdfExportTable" method="post" id="form1">
-        @Html.AntiForgeryToken()
     <div class="row">
         <div class="col-sm-6 col-md-3">
             <label>Table style</label>
@@ -54,42 +56,41 @@
     </div>
 @if(showTableOptions)
 {
-                <div class="row">
+                <div class="row mt-2">
                     <div class="col-sm-12 col-md-6">
                         <div class="form-check">
-                            @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-control-check", id = "chkShowFirstColumn" })
-                            <label class="form-check-label">Show first column</label>
+                            @Html.CheckBoxFor(x => x.ShowFirstColumn, new { @class = "form-check-input", id = "chkShowFirstColumn" })
+                            <label class="form-check-label" for="chkShowFirstColumn">Show first column</label>
                         </div>
                         <div class="form-check">
-                            @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-control-check", id = "chkShowLastColumn" })
-                            <label class="form-check-label">Show last column</label>
+                            @Html.CheckBoxFor(x => x.ShowLastColumn, new { @class = "form-check-input", id = "chkShowLastColumn" })
+                            <label class="form-check-label" for="chkShowLastColumn">Show last column</label>
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <div class="form-check">
-                            @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-control-check", id = "chkShowColumnStripes" })
-                            <label class="form-check-label">Show column stripes</label>
+                            @Html.CheckBoxFor(x => x.ShowColumnStripes, new { @class = "form-check-input", id = "chkShowColumnStripes" })
+                            <label class="form-check-label" for="chkShowColumnStripes">Show column stripes</label>
                         </div>
                         <div class="form-check">
-                            @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-control-check", id = "chkShowRowStripes" })
-                            <label class="form-check-label">Show row stripes</label>
+                            @Html.CheckBoxFor(x => x.ShowRowsStripes, new { @class = "form-check-input", id = "chkShowRowStripes" })
+                            <label class="form-check-label" for="chkShowRowStripes">Show row stripes</label>
                         </div>
                     </div>
                 </div>
 }
-   
     <div class="row mt-3">
-        <div class="col-sm-2 col-md-1">
-            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="submit" id="btn-submit-form">
-                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="btnSpinner"></span>
-                <span id="btnText">Reload</span>
+        <div class="col-12">
+            <button type="submit" id="previewButton" class="btn btn-sm btn-primary mt-2" name="action" value="submit">
+                <i id="previewIcon" class="fa-solid fa-rotate mr-1" aria-hidden="true"></i>
+                <span id="previewText">Update preview</span>
             </button>
-        </div>
-        <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="excel">Download Workbook</button>
-        </div>
-        <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="pdf">Download Pdf</button>
+            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="excel">
+                <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+            </button>
+            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="pdf">
+                <i class="fa-regular fa-file-pdf mr-1" aria-hidden="true"></i> Download PDF
+            </button>
         </div>
     </div>
     <div class="row mt-3">
@@ -104,14 +105,10 @@
 <div class="row csharp"  style="display:none">
     <div class="col">
         <p>C# code below
-        <pre>
-        <code class="language-csharp hljs">
-        using var pck = model.CreateWorkbook(_env.WebRootPath); //Create the workbook
-        using  var ms = new MemoryStream();
-        pck.Workbook.Worksheets[0].SaveAsPdf(ms);
-        return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
-            </code>
-        </pre>
+            <pre><code class="language-csharp">using var pck = model.CreateWorkbook(_env.WebRootPath); // Create the workbook
+using var ms = new MemoryStream();
+pck.Workbook.Worksheets[0].SaveAsPdf(ms);
+return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
     </div>
 </div>
 <script type="text/javascript">
@@ -134,63 +131,53 @@
             jQuery("#tab-csharp").removeClass("active");
         });
 
-        var table = document.getElementsByClassName("epplus-table")[0];
+            // Toggle table style classes in the preview when the checkboxes change
+            const table = document.querySelector(".epplus-table");
+            const tableStylePrefix = "ts-@Model.TableStyleName.ToLower()";
 
-        // checkbox handler for show first column
-        var firstColCheckbox = document.getElementById('chkShowFirstColumn');
-        var firstColumnClass = "ts-@Model.TableStyleName.ToLower()-first-column";
-        firstColCheckbox.addEventListener("change", function() {
-            if (firstColCheckbox.checked) {
-                table.classList.add(firstColumnClass);
-            } else {
-                table.classList.remove(firstColumnClass);
-            }
-            updateTableClassInfo();
-        }, false);
+            const bindTableOption = (checkboxId, classSuffix) => {
+                const checkbox = document.getElementById(checkboxId);
+                if (!table || !checkbox) return;
+                checkbox.addEventListener("change", () => {
+                    table.classList.toggle(`${tableStylePrefix}-${classSuffix}`, checkbox.checked);
+                });
+            };
 
-        // checkbox handler for show last column
-        var lastColCheckbox = document.getElementById('chkShowLastColumn');
-        var lastColumnClass = "ts-@Model.TableStyleName.ToLower()-last-column";
-        lastColCheckbox.addEventListener("change", function() {
-            if (lastColCheckbox.checked) {
-                table.classList.add(lastColumnClass);
-            } else {
-                table.classList.remove(lastColumnClass);
-            }
-        }, false);
+            bindTableOption("chkShowFirstColumn", "first-column");
+            bindTableOption("chkShowLastColumn", "last-column");
+            bindTableOption("chkShowColumnStripes", "column-stripes");
+            bindTableOption("chkShowRowStripes", "row-stripes");
 
-        // checkbox handler for show column stripes
-        var colStripesCheckbox = document.getElementById('chkShowColumnStripes');
-        var colStripesClass = "ts-@Model.TableStyleName.ToLower()-column-stripes";
-        colStripesCheckbox.addEventListener("change", function() {
-            if (colStripesCheckbox.checked) {
-                table.classList.add(colStripesClass);
-            } else {
-                table.classList.remove(colStripesClass);
-            }
-        }, false);
+            // Spinner on the preview button
+            const form = document.getElementById("form1");
+            const previewButton = document.getElementById("previewButton");
+            const previewIcon = document.getElementById("previewIcon");
+            const previewText = document.getElementById("previewText");
+            let isSubmitting = false;
 
-        // checkbox handler for show row stripes
-        var rowStripesCheckbox = document.getElementById('chkShowRowStripes');
-        var rowStripesClass = "ts-@Model.TableStyleName.ToLower()-row-stripes";
-        rowStripesCheckbox.addEventListener("change", function() {
-            if (rowStripesCheckbox.checked) {
-                table.classList.add(rowStripesClass);
-            } else {
-                table.classList.remove(rowStripesClass);
-            }
-        }, false);
+            const setLoading = (isLoading) => {
+                isSubmitting = isLoading;
+                // Use the "disabled" class, not the attribute. A disabled submit button
+                // is excluded from the posted form data, so action=submit would be lost.
+                previewButton.classList.toggle("disabled", isLoading);
+                previewButton.setAttribute("aria-disabled", isLoading ? "true" : "false");
+                previewIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-rotate mr-1";
+                previewText.textContent = isLoading ? "Updating..." : "Update preview";
+            };
+
+            form.addEventListener("submit", (e) => {
+                // Only the preview button gets a spinner. The download buttons return
+                // files, so the page is never reloaded and the spinner would never stop.
+                if (e.submitter !== previewButton) return;
+
+                if (isSubmitting) {
+                    e.preventDefault(); // Prevent double submits
+                    return;
+                }
+                setLoading(true);
+            });
+
+            // Reset the button if the page is restored from the back/forward cache
+            window.addEventListener("pageshow", () => setLoading(false));
     });
-
-    const form = document.querySelector('form');
-    const btn = document.getElementById('btn-submit-form');
-    const spinner = document.getElementById('btnSpinner');
-    const text = document.getElementById('btnText');
-
-    form.addEventListener('submit', (e) => {
-        if (e.submitter && e.submitter.id === 'btn-submit-form') {
-            btn.disabled = true;
-            spinner.classList.remove('d-none');
-        }
-        });
     </script>

@@ -63,12 +63,12 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             table.Columns[3].CalculatedColumnFormula = $"{table.Name}[[#This Row],[Population]]/{table.Name}[[#This Row],[Area (km²)]]";
             table.Columns[3].Name = "Density";
             table.Columns[3].TotalsRowFunction = RowFunctions.Average;
-            
+
             // uncomment this to enable the show functionality
-            //table.ShowFirstColumn = showFirstColumn;
-            //table.ShowLastColumn = showLastColumn;
-            //table.ShowColumnStripes = showColumnStripes;
-            //table.ShowRowStripes = showRowStripes;
+            table.ShowFirstColumn = showFirstColumn;
+            table.ShowLastColumn = showLastColumn;
+            table.ShowColumnStripes = showColumnStripes;
+            table.ShowRowStripes = showRowStripes;
             sheet.Calculate();
 
             //// format the header

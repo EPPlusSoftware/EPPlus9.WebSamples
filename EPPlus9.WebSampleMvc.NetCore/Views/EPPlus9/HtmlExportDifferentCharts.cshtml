@@ -13,19 +13,24 @@
 </div>
 <div class="row">
     <div class="col text-center">
-        <h4>Exports a workbook with a chart and a table</h4>
+        <h4>Exports a workbook with a chart and a table to html/svg</h4>
     </div>
 </div>
 <div class="row my-2">
     <div class="col bg-light rounded">
         <div class="row">
             <div class="col-6">
-                <a href="EPPlus9/HtmlExportwithCharts">&laquo; Previous sample</a>
+                <a href="/EPPlus9/HtmlExportwithCharts">&laquo; Previous sample</a>
             </div>
             <div class="col-6 text-right">
-                <a href="EPPlus9/PdfExportTable">Next sample &raquo;</a>
+                <a href="/EPPlus9/PdfExportTable">Next sample &raquo;</a>
             </div>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-3">
+        <p>In this sample, the chart is exported as a separate SVG image, using the <i>ExcelDrawing.ToSvg</i> method.</p>
     </div>
 </div>
 <div class="row">
@@ -36,6 +41,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" id="tab-csharp">C#</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-razor">View (html/Razor)</a>
             </li>
         </ul>
     </div>
@@ -59,12 +67,17 @@
                 </div>
             </div>
     <div class="row mt-3">
-        <div class="col-sm-2 col-md-1">
-            <button type="submit" class="btn btn-sm btn-primary mt-1" name="action" value="submit">Reload</button>
-        </div>
-        <div class="col-sm-1 col-md-2">
-             <button type="submit" class="btn btn-sm btn-primary mt-1" name="action" value="download">Download Workbook</button>
-        </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button type="submit" id="exportButton" class="btn btn-sm btn-primary mt-1" name="action" value="submit">
+                            <i id="exportIcon" class="fa-solid fa-code mr-1" aria-hidden="true"></i>
+                            <span id="exportText">Export to HTML/SVG</span>
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-outline-primary mt-1 ml-2" name="action" value="download">
+                            <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+                        </button>
+                    </div>
+                </div>
     </div>
     <div class="row mt-3">
         <div class="col p-2 m-2">
@@ -81,12 +94,126 @@
 </div>
 <div class="row csharp"  style="display:none">
     <div class="col">
-        <p>Code to generate the html/css and svg below</p>
+        <p>Code from the Model class to generate the html/css and svg below</p>
         <pre>
         <code class="language-csharp hljs">
+        public string Html { get; private set; }
+        public string Css { get; private set; }
+        public string SvgChart { get; private set; }
 
+        public async Task LoadHtmlAndChartExport()
+        {
+            var package = CreateWorkbook(ChartType, ChartStyle, TableStyle);
+            var sheet = package.Workbook.Worksheets[0];
+            var exporter = sheet.Cells.CreateHtmlExporter();
+            var settings = exporter.Settings;
+            settings.Drawings.Include = eDrawingInclude.IncludeInCssOnly; // Exclude the chart from the HTML export, we will export it as a separate SVG. Optionally you could use the eDrawingInclude.IncludeAsClass option to include the chart in the HTML export as a class.
+            settings.Culture = CultureInfo.InvariantCulture;
+
+            settings.TableId = "currency-table";
+            settings.AdditionalTableClassNames.Add("table");
+            settings.AdditionalTableClassNames.Add("table-sm");
+            settings.AdditionalTableClassNames.Add("table-borderless");
+            
+            Html = await exporter.GetHtmlStringAsync(); // Get the HTML string for the worksheet without the chart as a table.
+            Css = await exporter.GetCssStringAsync();   //Get the CSS string for the worksheet without the chart as a table. You could include the drawing in the css as a class, but in this case we want to export the chart as a separate SVG.
+            SvgChart = sheet.Drawings[0].ToSvg(x => { x.SvgSize.Width.SetPercent(100); x.SvgSize.Height.Remove(); });       //Get the chart as a separate SVG string.
+        }
+        
+        public static ExcelPackage CreateWorkbook(SelectedChartType chartType, ePresetChartStyleMultiSeries chartStyle, TableStyles tableStyle)
+        {
+            var package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Html export with svg chart");
+
+            var range = sheet.Cells["A1"].LoadFromCollection(_salesData, true, tableStyle);
+            sheet.Cells["B2:C7"].Style.Numberformat.Format = "#,##0";
+            sheet.Cells["D2:D7"].Style.Numberformat.Format = "#,##0.00%";
+            ExcelChart chart;
+            switch (chartType)
+            {
+                case SelectedChartType.ComboChart:
+                    chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.ColumnClustered);
+                    var s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    var s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
+                    var lineChartType = chart.PlotArea.ChartTypes.Add(eChartType.Line);
+
+                    lineChartType.UseSecondaryAxis = true;
+                    var s3 = lineChartType.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    s3.HeaderAddress = sheet.Cells["D1"];
+                    break;
+                case SelectedChartType.LineChart:
+                    chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.LineMarkers);
+                    var s=chart.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    s.HeaderAddress = sheet.Cells["D1"];
+                    break;
+                case SelectedChartType.ColumnChart:
+                    chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.ColumnClustered);
+                    s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
+                    var barChart = chart as ExcelBarChart;
+                    barChart.Overlap = -5;
+
+                    break;
+                case SelectedChartType.BarChart:
+                    chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.BarClustered);
+                    s1 = chart.Series.Add(sheet.Cells["B2:B7"], sheet.Cells["A2:A7"]);
+                    s1.HeaderAddress = sheet.Cells["B1"];
+                    s2 = chart.Series.Add(sheet.Cells["C2:C7"], sheet.Cells["A2:A7"]);
+                    s2.HeaderAddress = sheet.Cells["C1"];
+                    barChart = chart as ExcelBarChart;
+                    barChart.Overlap = -10;
+                    break;
+                case SelectedChartType.PieChart:
+                default:
+                    chart = sheet.Drawings.AddChart("RegionalSalesChart", eChartType.PieExploded);
+                    chart.Series.Add(sheet.Cells["D2:D7"], sheet.Cells["A2:A7"]);
+                    var pieChart = chart as ExcelPieChart;
+                    chart.StyleManager.SetChartStyle(chartStyle);
+                    pieChart.DataLabel.ShowPercent = true;
+                    pieChart.DataLabel.Border.Fill.Style=eFillStyle.SolidFill;
+                    pieChart.DataLabel.Border.Fill.Color = Color.Black;
+                    pieChart.DataLabel.Fill.Style = eFillStyle.SolidFill;
+                    pieChart.DataLabel.Fill.Color = Color.LightCoral;
+                    chart.SetPosition(2, 0, 5, 0);
+                    chart.SetSize(1100, 300);
+                    return package;
+            }
+
+            chart.StyleManager.SetChartStyle(chartStyle);
+            chart.SetPosition(2,0,5, 0);
+            chart.SetSize(1100,400);
+
+            return package;
+        }
         </code>
         </pre>
+    </div>
+</div>
+@{
+    // Code samples shown on the page. Stored as C# strings so that Razor
+    // HTML-encodes them and does not execute the @-expressions.
+    const string cssSample = @"<style>@Html.Raw(Model.Css)</style>";
+
+    const string htmlSample = @"<div class=""row mt-3"">
+    <div class=""col p-2 m-2"">
+        @Html.Raw(Model.SvgChart)
+    </div>
+</div>
+<div class=""row mt-3"">
+    <div class=""col"">
+        @Html.Raw(Model.Html)
+    </div>
+</div>";
+}
+<div class="row razor" style="display:none">
+    <div class="col">
+        <p>Code from the View to generate the html/css and svg below</p>
+        <pre><code class="language-html">@cssSample</code></pre>
+        <pre><code class="language-html">@htmlSample</code></pre>
     </div>
 </div>
 
@@ -98,29 +225,60 @@
         jQuery("#tab-csharp").click(function (e) {
             e.preventDefault();
             jQuery(".demo").hide();
+            jQuery(".razor").hide();
             jQuery(".csharp").show();
             jQuery("#tab-demo").removeClass("active");
+            jQuery("#tab-razor").removeClass("active");
             jQuery("#tab-csharp").addClass("active");
         });
         jQuery("#tab-demo").click(function (e) {
             e.preventDefault();
             jQuery(".demo").show();
+            jQuery(".razor").hide();
             jQuery(".csharp").hide();
             jQuery("#tab-demo").addClass("active");
+            jQuery("#tab-razor").removeClass("active");
+            jQuery("#tab-csharp").removeClass("active");
+        });
+        jQuery("#tab-razor").click(function(e) {
+            e.preventDefault();
+            jQuery(".razor").show();
+            jQuery(".demo").hide();
+            jQuery(".csharp").hide();
+            jQuery("#tab-razor").addClass("active");
+            jQuery("#tab-demo").removeClass("active");
             jQuery("#tab-csharp").removeClass("active");
         });
 
-        const form = document.querySelector("form");
-        const btn = document.getElementById("btn-submit-form");
-        const spinner = document.querySelector(".spinner"); // adjust selector as needed
+        const form = document.getElementById("form1");
+        const exportButton = document.getElementById("exportButton");
+        const exportIcon = document.getElementById("exportIcon");
+        const exportText = document.getElementById("exportText");
+        let isSubmitting = false;
 
-        if(form){
-            form.addEventListener('submit', (e) => {
-                if (e.submitter && e.submitter.id === 'btn-submit-form') {
-                    btn.disabled = true;
-                    spinner.classList.remove('d-none');
-                }
-            });
-        }
+        const setLoading = (isLoading) => {
+            isSubmitting = isLoading;
+            // Use the "disabled" class, not the attribute. A disabled submit button
+            // is excluded from the posted form data, so action=submit would be lost.
+            exportButton.classList.toggle("disabled", isLoading);
+            exportButton.setAttribute("aria-disabled", isLoading ? "true" : "false");
+            exportIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-code mr-1";
+            exportText.textContent = isLoading ? "Exporting..." : "Export to HTML/SVG";
+        };
+
+        form.addEventListener("submit", (e) => {
+            // Only the export button gets a spinner. The download button returns
+            // a file, so the page is never reloaded and the spinner would never stop.
+            if (e.submitter !== exportButton) return;
+
+            if (isSubmitting) {
+                e.preventDefault(); // Prevent double submits
+                return;
+            }
+            setLoading(true);
+        });
+
+        // Reset the button if the page is restored from the back/forward cache
+        window.addEventListener("pageshow", () => setLoading(false));
     });
 </script>

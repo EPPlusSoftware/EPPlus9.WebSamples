@@ -12,7 +12,7 @@
 </div>
 <div class="row">
     <div class="col text-center">
-        <h4>Export a workbook with a range (border, fills, pictures, etc)</h4>
+        <h4>Export a workbook with a range (border, fills, pictures, etc) to PDF</h4>
     </div>
 </div>
 <div class="row my-2">
@@ -41,40 +41,41 @@
 </div>
 <div class="row demo">
     <div class="col">
+        <div class="alert alert-info border border-info rounded">
+            <p>The exported range is wider than a single A4 page. Just like Excel, EPPlus automatically inserts page breaks in the PDF to ensure that all columns are included.</p>
+        </div>
         <form asp-action="PdfExportRange" method="post" id="form1">
         @Html.AntiForgeryToken()
 
-    <div class="row mt-3">
-        <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="excel">Download Workbook</button>
+        <div class="row mt-3">
+            <div class="col-12">
+                <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="pdf">
+                    <i class="fa-regular fa-file-pdf mr-1" aria-hidden="true"></i> Download PDF
+                </button>
+                <button type="submit" class="btn btn-sm btn-outline-primary mt-2 ml-2" name="action" value="excel">
+                    <i class="fa-regular fa-file-excel mr-1" aria-hidden="true"></i> Download Workbook
+                </button>
+            </div>
         </div>
-        <div class="col-sm-1 col-md-2">
-            <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="pdf">Download Pdf</button>
+        <div class="row mt-3">
+            <div class="col-12">
+                <style>@Html.Raw(Model.Css)</style>
+                <div style="overflow-x: auto;">
+                    @Html.Raw(Model.Html)
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row mt-3">
-        <div class="col-sm-12 col-md-6">
-            <style>@Html.Raw(Model.Css)</style>       
-            @Html.Raw(Model.Html)
-        </div>
-    </div>
 </form>
     </div>
 </div>
 <div class="row csharp"  style="display:none">
     <div class="col">
         <p>C# code below
-        <pre>
-        <code class="language-csharp hljs">
-
-var file = Path.Combine(webRootPath, "data\\Allsvenskan2001.xlsx");
-var pkg = new ExcelPackage(file);
+            <pre><code class="language-csharp">var file = Path.Combine(webRootPath, "data", "Allsvenskan2001.xlsx");
+using var package = new ExcelPackage(file);
 using var ms = new MemoryStream();
-pck.Workbook.SaveAsPdf(ms);
-return File(ms.ToArray(), "application/pdf", "EPPlus Sample 4.pdf");
-
-            </code>
-        </pre>
+package.Workbook.SaveAsPdf(ms);
+return File(ms.ToArray(), "application/pdf", "EPPlus Sample 4.pdf");</code></pre>
     </div>
 </div>
 <script type="text/javascript">

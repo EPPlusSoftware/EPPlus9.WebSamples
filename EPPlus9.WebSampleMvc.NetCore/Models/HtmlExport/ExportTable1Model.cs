@@ -77,16 +77,16 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport
                 switch (theme)
                 {
                     case 1:
-                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes\\Ion.thmx"));
+                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes", "Ion.thmx"));
                         break;
                     case 2:
-                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes\\Banded.thmx"));
+                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes", "Banded.thmx"));
                         break;
                     case 3:
-                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes\\Parallax.thmx"));
+                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes", "Parallax.thmx"));
                         break;
                     default:
-                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes\\Ion.thmx"));
+                        fileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"themes", "Ion.thmx"));
                         break;
                 }
                 package.Workbook.ThemeManager.Load(fileInfo);

@@ -39,6 +39,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" id="tab-csharp">C#</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-fonts">Fonts</a>
+            </li>
         </ul>
     </div>
 </div>
@@ -112,30 +115,73 @@
     <div class="col">
         <p>C# code below
             <pre><code class="language-csharp">using var pck = model.CreateWorkbook(_env.WebRootPath); // Create the workbook
+pck.Workbook.ConfigureFonts(cfg =>
+{
+    cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
+});
 using var ms = new MemoryStream();
 pck.Workbook.Worksheets[0].SaveAsPdf(ms);
 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
     </div>
 </div>
+<div class="row fontinfo" style="display:none">
+    <div class="col">
+        <div id="fontinfo-content">
+            <p><i class="fa-solid fa-spinner fa-spin mr-1" aria-hidden="true"></i> Scanning fonts...</p>
+        </div>
+    </div>
+</div>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css" />
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
         jQuery(".demo").show();
         jQuery(".csharp").hide();
         hljs.highlightAll();
-        jQuery("#tab-csharp").click(function (e) {
-            e.preventDefault();
-            jQuery(".demo").hide();
-            jQuery(".csharp").show();
-            jQuery("#tab-demo").removeClass("active");
-            jQuery("#tab-csharp").addClass("active");
-        });
-        jQuery("#tab-demo").click(function (e) {
-            e.preventDefault();
-            jQuery(".demo").show();
-            jQuery(".csharp").hide();
-            jQuery("#tab-demo").addClass("active");
-            jQuery("#tab-csharp").removeClass("active");
-        });
+            // Tab id -> selector of the panel it shows
+            const panels = {
+                "tab-demo": ".demo",
+                "tab-csharp": ".csharp",
+                "tab-fonts": ".fontinfo"
+            };
+
+            let fontsLoaded = false;
+            let fontsLoading = false;
+
+            const loadFonts = async () => {
+                if (fontsLoaded || fontsLoading) return;
+                fontsLoading = true;
+                const target = document.getElementById("fontinfo-content");
+                try {
+                    const response = await fetch("@Url.Action("PdfExportTableFonts", "EPPlus9")");
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    target.innerHTML = await response.text();
+
+                    jQuery("#font-table").DataTable({
+                        pageLength: 25,
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                        order: [[0, "asc"], [1, "asc"]],
+                        autoWidth: false
+                    });
+
+                    fontsLoaded = true;
+                    fontsLoaded = true; // Only on success, so a failed load is retried on the next click
+                } catch (err) {
+                    target.innerHTML = '<div class="alert alert-danger">Could not load the font list.</div>';
+                } finally {
+                    fontsLoading = false;
+                }
+            };
+
+            jQuery(".nav-tabs .nav-link").click(function (e) {
+                e.preventDefault();
+                const activeId = this.id;
+                jQuery(".nav-tabs .nav-link").removeClass("active");
+                jQuery(this).addClass("active");
+                jQuery.each(panels, (tabId, selector) => jQuery(selector).toggle(tabId === activeId));
+                if (activeId === "tab-fonts") loadFonts();
+            });
 
             // Toggle table style classes in the preview when the checkboxes change
             const table = document.querySelector(".epplus-table");

@@ -43,6 +43,11 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             if(action=="pdf")
             {
                 using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes, model.PrintTitles);
+                pck.Workbook.ConfigureFonts(cfg =>
+                {
+                    cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
+                    cfg.SearchSystemDirectories = false;
+                });
                 using  var ms = new MemoryStream();
                 pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
@@ -54,6 +59,14 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             }
             await model.LoadHtml(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes, model.PrintTitles);
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult PdfExportTableFonts()
+        {
+            var model = new PdfExportTableModel();
+            model.LoadFonts(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
+            return PartialView("_PdfExportTableFonts", model);
         }
 
         public async Task<IActionResult> PdfExportRange(PdfExportRangeModel model, string action)

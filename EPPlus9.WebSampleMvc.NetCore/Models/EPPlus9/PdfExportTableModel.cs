@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using EPPlus.Fonts.OpenType;
+using EPPlus.Fonts.OpenType.Scanner;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
 using OfficeOpenXml.Export.HtmlExport;
@@ -236,6 +238,32 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
             Html = await exporter.GetHtmlStringAsync(); // Get the HTML string for the worksheet without the chart as a table.
             Css = await exporter.GetCssStringAsync();   //Get the CSS string for the worksheet without the chart as a table. You could include the drawing in the css as a class, but in this case we want to export the chart as a separate SVG.
+        }
+
+        public class FontInfoRow
+        {
+            public string Family { get; set; }
+            public string Style { get; set; }
+            public string FileName { get; set; }
+            public bool IsVariable { get; set; }
+        }
+
+        public IReadOnlyList<FontFaceInfo> Fonts { get; private set; } = Array.Empty<FontFaceInfo>();
+
+        public IReadOnlyList<string> ScannedDirectories { get; private set; } = Array.Empty<string>();
+
+        internal void LoadFonts(string fontDirectory)
+        {
+            var directories = new[] { fontDirectory };
+
+            ScannedDirectories = FontDiscovery.GetFontDirectories(directories)
+                .Where(Directory.Exists)
+                .ToList();
+
+            Fonts = FontDiscovery.GetAllFontFaces(directories)
+                .OrderBy(f => f.FamilyName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(f => f.SubfamilyName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
     }
 }

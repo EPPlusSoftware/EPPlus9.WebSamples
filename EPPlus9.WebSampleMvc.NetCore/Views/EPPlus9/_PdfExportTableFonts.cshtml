@@ -1,0 +1,54 @@
+﻿@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableModel
+
+<p class="small mb-1"><strong>Scanned directories</strong> (only those that exist on this server):</p>
+@if (Model.ScannedDirectories.Count == 0)
+{
+    <p class="text-muted small">No font directories were found.</p>
+}
+else
+{
+    <ul class="small text-muted">
+        @foreach (var dir in Model.ScannedDirectories)
+        {
+            <li><code>@dir</code></li>
+        }
+    </ul>
+}
+
+<p class="text-muted small">@Model.Fonts.Count font faces found.</p>
+<div class="table-responsive">
+    <table id="font-table" class="table table-sm table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>Family</th>
+                <th>Style</th>
+                <th>Full name</th>
+                <th>Format</th>
+                <th>Variable</th>
+                <th>Collection</th>
+                <th>File</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.Fonts)
+            {
+                <tr>
+                    <td>@f.FamilyName</td>
+                    <td>@f.SubfamilyName</td>
+                    <td>@f.FullFontName</td>
+                    <td>@f.Format</td>
+                    <td>@(f.IsVariable ? "Yes" : "")</td>
+                    <td>@(f.OffsetInFile > 0 ? "TTC" : "")</td>
+                    <td>@System.IO.Path.GetFileName(f.FilePath)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<style>
+    .font-list thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+    }
+</style>

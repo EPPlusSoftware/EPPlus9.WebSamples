@@ -13,6 +13,26 @@
   <ItemGroup>
     <None Remove="data\Allsvenskan2001.xlsx" />
     <None Remove="data\currencies2011weekly.csv" />
+    <None Remove="data\Fonts\Carlito\Carlito-Bold.ttf" />
+    <None Remove="data\Fonts\Carlito\Carlito-BoldItalic.ttf" />
+    <None Remove="data\Fonts\Carlito\Carlito-Italic.ttf" />
+    <None Remove="data\Fonts\Carlito\Carlito-Regular.ttf" />
+    <None Remove="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Bold.ttf" />
+    <None Remove="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-BoldItalic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Italic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Regular.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationMono-Bold.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationMono-BoldItalic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationMono-Italic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationMono-Regular.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSans-Bold.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSans-BoldItalic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSans-Italic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSans-Regular.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSerif-Bold.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSerif-BoldItalic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSerif-Italic.ttf" />
+    <None Remove="data\Fonts\Liberation Sans\LiberationSerif-Regular.ttf" />
     <None Remove="data\SwedishGeography.xlsx" />
     <None Remove="themes\Banded.thmx" />
     <None Remove="themes\Ion.thmx" />
@@ -24,6 +44,66 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\currencies2011weekly.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Carlito\Carlito-Bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Carlito\Carlito-BoldItalic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Carlito\Carlito-Italic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Carlito\Carlito-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-BoldItalic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Italic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans Narrow\LiberationSansNarrow-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationMono-Bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationMono-BoldItalic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationMono-Italic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationMono-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSans-Bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSans-BoldItalic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSans-Italic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSans-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSerif-Bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSerif-BoldItalic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSerif-Italic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\Fonts\Liberation Sans\LiberationSerif-Regular.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="data\SwedishGeography.xlsx">

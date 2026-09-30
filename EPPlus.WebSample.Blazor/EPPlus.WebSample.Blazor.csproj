@@ -14,11 +14,18 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.10" PrivateAssets="all" />
-    <PackageReference Include="EPPlus" Version="9.0.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.DrawingRenderer\EPPlus.DrawingRenderer.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Export.Pdf\EPPlus.Export.Pdf.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Fonts.OpenType\EPPlus.Fonts.OpenType.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Interfaces\EPPlus.Interfaces.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus\EPPlus.csproj" />
   </ItemGroup>
 </Project>
     

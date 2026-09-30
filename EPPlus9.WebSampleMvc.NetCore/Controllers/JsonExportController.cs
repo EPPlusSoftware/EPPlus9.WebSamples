@@ -26,7 +26,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             using(var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("Currencies");
-                var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+                var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "currencies2011weekly.csv"));
                 var format = new ExcelTextFormat
                 {
                     Delimiter = ';',

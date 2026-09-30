@@ -22,7 +22,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         [HttpGet, Route("/api/fxrates")]
         public IActionResult FxRates()
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\FxRates.json");
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "FxRates.json");
             var json = System.IO.File.ReadAllText(path);
             return Json(json);
         }

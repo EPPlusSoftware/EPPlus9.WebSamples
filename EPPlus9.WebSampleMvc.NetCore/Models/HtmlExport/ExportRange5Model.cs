@@ -10,7 +10,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport
     {
         public void SetupSampleData()
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\Allsvenskan2001.xlsx");
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "Allsvenskan2001.xlsx");
             using (var package = new ExcelPackage(file))
             {
                 var sheet = package.Workbook.Worksheets[0];

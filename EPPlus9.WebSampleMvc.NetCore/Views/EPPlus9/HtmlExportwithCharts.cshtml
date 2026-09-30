@@ -29,6 +29,11 @@
     </div>
 </div>
 <div class="row">
+    <div class="col mt-3">
+        <p>In this sample, an entire worksheet containing a chart, table, and textbox is exported to a single html page with separate CSS.</p>
+    </div>
+</div>
+<div class="row">
     <div class="col my-3">
         <ul class="nav nav-tabs">
             <li class="nav-item">
@@ -108,7 +113,7 @@
         {
             var package = new ExcelPackage();
             var sheet = package.Workbook.Worksheets.Add("Html export with svg chart");
-            var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+            var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "currencies2011weekly.csv"));
             if (csvFileInfo.Exists == false) return null;
             var format = new ExcelTextFormat
             {

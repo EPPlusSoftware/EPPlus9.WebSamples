@@ -1,0 +1,38 @@
+﻿@using System.Runtime.InteropServices
+@{
+    string osName;
+    string iconClass;
+
+    if (OperatingSystem.IsWindows())
+    {
+        osName = "Windows";
+        iconClass = "fa-brands fa-windows";
+    }
+    else if (OperatingSystem.IsLinux())
+    {
+        osName = "Linux";
+        iconClass = "fa-brands fa-linux";
+    }
+    else if (OperatingSystem.IsMacOS())
+    {
+        osName = "macOS";
+        iconClass = "fa-brands fa-apple";
+    }
+    else
+    {
+        // Fallback for any other platform
+        osName = RuntimeInformation.OSDescription;
+        iconClass = "fa-solid fa-server";
+    }
+}
+<p class="runtime-info text-muted mb-3 d-flex align-items-center">
+    <i class="@iconClass fa-2x mr-2" aria-hidden="true"></i>
+    <span>
+        This demo is running live on a
+        <strong class="os-details" tabindex="0" data-toggle="tooltip"
+                title="@RuntimeInformation.OSDescription – @RuntimeInformation.FrameworkDescription">
+            @osName <i class="fa-solid fa-circle-info fa-xs" aria-hidden="true"></i>
+        </strong>
+        server with @RuntimeInformation.FrameworkDescription
+    </span>
+</p>

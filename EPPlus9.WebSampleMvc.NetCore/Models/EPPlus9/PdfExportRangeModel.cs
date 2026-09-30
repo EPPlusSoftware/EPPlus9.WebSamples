@@ -22,7 +22,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
         public string Css { get; set; }
         public ExcelPackage CreateWorkbook(string webRootPath)
         {
-            var file = Path.Combine(webRootPath, "data\\Allsvenskan2001.xlsx");
+            var file = Path.Combine(webRootPath, "data", "Allsvenskan2001.xlsx");
             return new ExcelPackage(file);
         }
         

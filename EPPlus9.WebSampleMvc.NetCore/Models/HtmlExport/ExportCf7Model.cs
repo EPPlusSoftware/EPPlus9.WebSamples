@@ -72,7 +72,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport
         public void SetupSampleData(string tableName = "")
         {
             var tblName = GetTableName(tableName);
-            using (var package = new ExcelPackage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\CfExport1.xlsx")))
+            using (var package = new ExcelPackage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "CfExport1.xlsx")))
             {
                 var sheet = package.Workbook.Worksheets[0];
                 var table = sheet.Tables[tblName];

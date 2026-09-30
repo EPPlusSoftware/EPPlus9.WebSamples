@@ -84,7 +84,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
         {
             var package = new ExcelPackage();
             var sheet = package.Workbook.Worksheets.Add("Html export with svg chart");
-            var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+            var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "currencies2011weekly.csv"));
             if (csvFileInfo.Exists == false) return null;
             var format = new ExcelTextFormat
             {

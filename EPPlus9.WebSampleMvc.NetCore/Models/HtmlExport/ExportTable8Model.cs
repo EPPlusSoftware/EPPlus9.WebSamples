@@ -16,7 +16,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport
             using (var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("Html export sample 8");
-                var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\currencies2011weekly.csv"));
+                var csvFileInfo = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "currencies2011weekly.csv"));
                 var format = new ExcelTextFormat
                 {
                     Delimiter = ';',

@@ -34,7 +34,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
         public bool ShowColumnStripes { get; set; }
 
-        public bool ShowRowsStripes { get; set; }
+        public bool ShowRowsStripes { get; set; } = true;
+
+        public bool PrintTitles { get; set; } = true;
 
         public TableStyles TableStyle { get; set; } = TableStyles.Dark3;
 
@@ -42,7 +44,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
         public string Html { get; set; }
         public string Css { get; set; }
-        public ExcelPackage CreateWorkbook(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
+        public ExcelPackage CreateWorkbook(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes, bool printTitles)
         {
             InitDataTable();
             var package = new ExcelPackage();
@@ -94,6 +96,13 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             SetFooter(sheet);
 
             sheet.PrinterSettings.TopMargin = 1.1;
+
+            if(printTitles)
+            {
+                // Repeat the table's header row at the top of every printed page
+                int headerRow = table.Address.Start.Row;
+                sheet.PrinterSettings.RepeatRows = new ExcelAddress(headerRow + ":" + headerRow);
+            }
 
             return package;
         }
@@ -211,9 +220,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             _dataTable.Rows.Add("Vietnam", 98168833, 331212);
         }
 
-        internal async Task LoadHtml(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes)
+        internal async Task LoadHtml(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes, bool printTitles)
         {
-            var package = CreateWorkbook(webRootPath, showFirstColumn, showLastColumn, showColumnStripes, showRowStripes);
+            var package = CreateWorkbook(webRootPath, showFirstColumn, showLastColumn, showColumnStripes, showRowStripes, printTitles);
             
             var sheet = package.Workbook.Worksheets[0];
             var exporter = sheet.Cells.CreateHtmlExporter();

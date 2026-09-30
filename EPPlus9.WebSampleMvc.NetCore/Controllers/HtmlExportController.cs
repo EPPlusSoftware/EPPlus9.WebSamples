@@ -118,7 +118,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
 
         public async Task<IActionResult> GetWorkbookSample5()
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\Allsvenskan2001.xlsx");
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "Allsvenskan2001.xlsx");
             using var package = new ExcelPackage(file);
             var fileBytes = await package.GetAsByteArrayAsync();
             return File(fileBytes, ContentType, "EPPlusHtmlSample5.xlsx");
@@ -126,7 +126,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
 
         public async Task<IActionResult> GetWorkbookSample6()
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\SwedishGeography.xlsx");
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "SwedishGeography.xlsx");
             using var package = new ExcelPackage(file);
             var fileBytes = await package.GetAsByteArrayAsync();
             return File(fileBytes, ContentType, "EPPlusHtmlSample6.xlsx");
@@ -134,7 +134,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
 
         public async Task<IActionResult> GetWorkbookSample7()
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\CfExport1.xlsx");
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "CfExport1.xlsx");
             using var package = new ExcelPackage(file);
             var fileBytes = await package.GetAsByteArrayAsync();
             return File(fileBytes, ContentType, "EPPlusHtmlSample7.xlsx");

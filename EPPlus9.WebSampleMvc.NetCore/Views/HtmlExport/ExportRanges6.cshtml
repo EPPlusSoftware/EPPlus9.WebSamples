@@ -122,7 +122,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.HtmlExport
     {
         public void SetupSampleData()
         {
-            using(var package = new ExcelPackage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data\\SwedishGeography.xlsx")))
+            using(var package = new ExcelPackage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"data", "SwedishGeography.xlsx")))
             {
                 var sheet = package.Workbook.Worksheets[0];
                 var sheet2 = package.Workbook.Worksheets[1];

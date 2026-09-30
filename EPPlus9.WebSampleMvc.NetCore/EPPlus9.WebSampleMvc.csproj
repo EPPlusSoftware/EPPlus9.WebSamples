@@ -41,13 +41,19 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="EPPlus" Version="9.0.0-preview" />
 	<PackageReference Include="Faker.Net" Version="2.0.163" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Compression\EPPlus.Compression.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.DrawingRenderer\EPPlus.DrawingRenderer.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Export.Pdf\EPPlus.Export.Pdf.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Fonts.OpenType\EPPlus.Fonts.OpenType.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Graphics\EPPlus.Graphics.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Interfaces\EPPlus.Interfaces.csproj" />
+    <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus\EPPlus.csproj" />
     <ProjectReference Include="..\EPPlus.WebSample.Blazor\EPPlus.WebSample.Blazor.csproj" />
   </ItemGroup>
 

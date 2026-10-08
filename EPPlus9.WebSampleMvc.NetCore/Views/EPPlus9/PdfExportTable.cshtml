@@ -47,9 +47,6 @@
 </div>
 <div class="row demo">
     <div class="col">
-        <div class="alert alert-info border border-info rounded">
-            <p>Note that this version of EPPlus is a preview release. Work on PDF support for Excel tables is still ongoing.</p>
-        </div>
         <form asp-action="PdfExportTable" method="post" id="form1">
     <div class="row">
         <div class="col-sm-6 col-md-3">
@@ -86,6 +83,12 @@
                             <label class="form-check-label" for="chkPrintTitles">Repeat titles (PDF only)</label>
                         </div>
                     </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(x => x.FitToPage, new { @class = "form-check-input", id = "chkFitToPage" })
+                            <label class="form-check-label" for="chkFitToPage">Fit to page (PDF Only)</label>
+                        </div>
+                    </div>
                 </div>
 }
     <div class="row mt-3">
@@ -119,6 +122,27 @@ pck.Workbook.ConfigureFonts(cfg =>
 {
     cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
 });
+// a method that returns a DataTable with data
+var dataTable = GetDataTable();
+var tableRange = sheet.Cells["A1"].LoadFromDataTable(dataTable, true, TableStyle);
+var table = sheet.Tables.GetFromRange(tableRange);
+
+table.ShowFirstColumn = model.ShowFirstColumn;
+table.ShowLastColumn = model.ShowLastColumn;
+table.ShowColumnStripes = model.ShowColumnStripes;
+table.ShowRowStripes = model.ShowRowsStripes;
+if(model.PrintTitles)
+{
+    // Repeat the table's header row at the top of every printed page
+    int headerRow = table.Address.Start.Row;
+    sheet.PrinterSettings.RepeatRows = new ExcelAddress(headerRow + ":" + headerRow);
+}
+if(model.FitToPage)
+{
+    sheet.PrinterSettings.FitToPage = true;
+    sheet.PrinterSettings.FitToWidth = 1;
+    sheet.PrinterSettings.FitToHeight = 1;
+}
 using var ms = new MemoryStream();
 pck.Workbook.Worksheets[0].SaveAsPdf(ms);
 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>

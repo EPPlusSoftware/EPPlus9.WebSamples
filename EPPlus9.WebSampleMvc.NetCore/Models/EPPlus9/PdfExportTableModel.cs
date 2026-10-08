@@ -40,13 +40,15 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
         public bool PrintTitles { get; set; } = true;
 
+        public bool FitToPage { get; set; } = false;
+
         public TableStyles TableStyle { get; set; } = TableStyles.Dark3;
 
         public string TableStyleName => TableStyle.ToString();
 
         public string Html { get; set; }
         public string Css { get; set; }
-        public ExcelPackage CreateWorkbook(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes, bool printTitles)
+        public ExcelPackage CreateWorkbook(string webRootPath, PdfExportTableModel model)
         {
             InitDataTable();
             var package = new ExcelPackage();
@@ -69,10 +71,10 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             table.Columns[3].TotalsRowFunction = RowFunctions.Average;
 
             // uncomment this to enable the show functionality
-            table.ShowFirstColumn = showFirstColumn;
-            table.ShowLastColumn = showLastColumn;
-            table.ShowColumnStripes = showColumnStripes;
-            table.ShowRowStripes = showRowStripes;
+            table.ShowFirstColumn = model.ShowFirstColumn;
+            table.ShowLastColumn = model.ShowLastColumn;
+            table.ShowColumnStripes = model.ShowColumnStripes;
+            table.ShowRowStripes = model.ShowRowsStripes;
             sheet.Calculate();
 
             //// format the header
@@ -99,11 +101,17 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 
             sheet.PrinterSettings.TopMargin = 1.1;
 
-            if(printTitles)
+            if(model.PrintTitles)
             {
                 // Repeat the table's header row at the top of every printed page
                 int headerRow = table.Address.Start.Row;
                 sheet.PrinterSettings.RepeatRows = new ExcelAddress(headerRow + ":" + headerRow);
+            }
+            if(model.FitToPage)
+            {
+                sheet.PrinterSettings.FitToPage = true;
+                sheet.PrinterSettings.FitToWidth = 1;
+                sheet.PrinterSettings.FitToHeight = 1;
             }
 
             return package;
@@ -222,9 +230,9 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
             _dataTable.Rows.Add("Vietnam", 98168833, 331212);
         }
 
-        internal async Task LoadHtml(string webRootPath, bool showFirstColumn, bool showLastColumn, bool showColumnStripes, bool showRowStripes, bool printTitles)
+        internal async Task LoadHtml(string webRootPath, PdfExportTableModel model)
         {
-            var package = CreateWorkbook(webRootPath, showFirstColumn, showLastColumn, showColumnStripes, showRowStripes, printTitles);
+            var package = CreateWorkbook(webRootPath, model);
             
             var sheet = package.Workbook.Worksheets[0];
             var exporter = sheet.Cells.CreateHtmlExporter();

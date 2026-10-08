@@ -42,7 +42,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         {
             if(action=="pdf")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes, model.PrintTitles);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model);
                 pck.Workbook.ConfigureFonts(cfg =>
                 {
                     cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
@@ -54,10 +54,10 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             }
             if(action=="excel")
             {
-                using var pck = model.CreateWorkbook(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes, model.PrintTitles);
+                using var pck = model.CreateWorkbook(_env.WebRootPath, model);
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
             }
-            await model.LoadHtml(_env.WebRootPath, model.ShowFirstColumn, model.ShowLastColumn, model.ShowColumnStripes, model.ShowRowsStripes, model.PrintTitles);
+            await model.LoadHtml(_env.WebRootPath, model);
             return View(model);
         }
 

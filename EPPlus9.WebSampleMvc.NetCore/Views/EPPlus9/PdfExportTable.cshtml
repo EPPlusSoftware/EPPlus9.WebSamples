@@ -42,6 +42,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" id="tab-fonts">Fonts</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="tab-fontlog">Font log</a>
+            </li>
         </ul>
     </div>
 </div>
@@ -117,10 +120,16 @@
 <div class="row csharp"  style="display:none">
     <div class="col">
         <p>C# code below
-            <pre><code class="language-csharp">using var pck = model.CreateWorkbook(_env.WebRootPath); // Create the workbook
+            <pre><code class="language-csharp">
+IWebHostEnvironment _env;
+                
+using var pck = model.CreateWorkbook(_env.WebRootPath); // Create the workbook
 pck.Workbook.ConfigureFonts(cfg =>
 {
     cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
+    // collects events for display, InMemoryFontLogger is an implementation of the IFontLogger interface,
+    // written for this sample.
+    cfg.Logger = new InMemoryFontLogger(FontLogSeverity.Information); 
 });
 // a method that returns a DataTable with data
 var dataTable = GetDataTable();
@@ -155,6 +164,25 @@ return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
         </div>
     </div>
 </div>
+<div class="row fontlog" style="display:none">
+    <div class="col">
+        <div class="form-inline mb-3">
+            <label for="fontlog-level" class="mr-2">Minimum level</label>
+            <select id="fontlog-level" class="form-control form-control-sm mr-2">
+                <option value="Debug">Debug</option>
+                <option value="Information" selected>Information</option>
+                <option value="Warning">Warning</option>
+                <option value="Error">Error</option>
+            </select>
+            <button type="button" id="fontlog-run" class="btn btn-sm btn-primary">
+                <i class="fa-solid fa-play mr-1" aria-hidden="true"></i> Run export &amp; show log
+            </button>
+        </div>
+        <div id="fontlog-content">
+            <p class="text-muted">Runs the PDF export with the current table settings and shows which fonts and fallbacks were used.</p>
+        </div>
+    </div>
+</div>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap4.min.css" />
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
@@ -167,7 +195,8 @@ return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
             const panels = {
                 "tab-demo": ".demo",
                 "tab-csharp": ".csharp",
-                "tab-fonts": ".fontinfo"
+                "tab-fonts": ".fontinfo",
+                "tab-fontlog": ".fontlog"
             };
 
             let fontsLoaded = false;
@@ -240,6 +269,33 @@ return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");</code></pre>
                 previewIcon.className = isLoading ? "fa-solid fa-spinner fa-spin mr-1" : "fa-solid fa-rotate mr-1";
                 previewText.textContent = isLoading ? "Updating..." : "Update preview";
             };
+
+            // Font log: run the export server side and show the collected log
+            const fontLogButton = document.getElementById("fontlog-run");
+            fontLogButton.addEventListener("click", async () => {
+                const target = document.getElementById("fontlog-content");
+                fontLogButton.classList.add("disabled");
+                target.innerHTML = '<p><i class="fa-solid fa-spinner fa-spin mr-1" aria-hidden="true"></i> Running export...</p>';
+                try {
+                    const data = new FormData(form); // table settings + antiforgery token
+                    data.append("minSeverity", document.getElementById("fontlog-level").value);
+                    const response = await fetch("@Url.Action("PdfExportTableLog", "EPPlus9")", { method: "POST", body: data });
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    target.innerHTML = await response.text();
+                    if (document.getElementById("fontlog-table")) {
+                        jQuery("#fontlog-table").DataTable({
+                            pageLength: 25,
+                            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                            order: [],
+                            autoWidth: false
+                        });
+                    }
+                } catch (err) {
+                    target.innerHTML = '<div class="alert alert-danger">Could not run the export.</div>';
+                } finally {
+                    fontLogButton.classList.remove("disabled");
+                }
+            });
 
             form.addEventListener("submit", (e) => {
                 // Only the preview button gets a spinner. The download buttons return

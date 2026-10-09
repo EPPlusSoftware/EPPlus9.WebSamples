@@ -125,6 +125,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="NuGet.Packaging" Version="7.9.0" />
+    <PackageReference Include="NuGet.Protocol" Version="7.9.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\EPPlus9\EPPlus\src\EPPlus.Compression\EPPlus.Compression.csproj" />

@@ -1,6 +1,8 @@
 ﻿using EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using OfficeOpenXml.Interfaces.Fonts;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -40,19 +42,15 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         }
         public async Task<IActionResult> PdfExportTable(PdfExportTableModel model, string action)
         {
-            if(action=="pdf")
+            if (action == "pdf")
             {
                 using var pck = model.CreateWorkbook(_env.WebRootPath, model);
-                pck.Workbook.ConfigureFonts(cfg =>
-                {
-                    cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
-                    cfg.SearchSystemDirectories = false;
-                });
-                using  var ms = new MemoryStream();
+                ConfigureSampleFonts(pck.Workbook);
+                using var ms = new MemoryStream();
                 pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 3.pdf");
             }
-            if(action=="excel")
+            if (action=="excel")
             {
                 using var pck = model.CreateWorkbook(_env.WebRootPath, model);
                 return File(pck.GetAsByteArray(), ContentTypeExcel, "EPPlus Sample 3.xlsx");
@@ -61,12 +59,37 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
             return View(model);
         }
 
+        private void ConfigureSampleFonts(ExcelWorkbook workbook, IFontLogger logger = null)
+        {
+            workbook.ConfigureFonts(cfg =>
+            {
+                cfg.FontDirectories.Add(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
+                cfg.SearchSystemDirectories = false;
+                if (logger != null)
+                {
+                    cfg.Logger = logger;
+                }
+            });
+        }
+
         [HttpGet]
         public IActionResult PdfExportTableFonts()
         {
             var model = new PdfExportTableModel();
             model.LoadFonts(Path.Combine(_env.ContentRootPath, "data", "Fonts"));
             return PartialView("_PdfExportTableFonts", model);
+        }
+
+        [HttpPost]
+        public IActionResult PdfExportTableLog(PdfExportTableModel model, FontLogSeverity minSeverity = FontLogSeverity.Information)
+        {
+            var logger = new InMemoryFontLogger(minSeverity);
+            using var pck = model.CreateWorkbook(_env.WebRootPath, model);
+            ConfigureSampleFonts(pck.Workbook, logger);
+            using var ms = new MemoryStream();
+            pck.Workbook.SaveAsPdf(ms); // The PDF is discarded, we only want the log
+            var logModel = new PdfExportTableLogModel(logger.GetSnapshot(), minSeverity, logger.DroppedCount, ms.Length);
+            return PartialView("_PdfExportTableLog", logModel);
         }
 
         public async Task<IActionResult> PdfExportRange(PdfExportRangeModel model, string action)

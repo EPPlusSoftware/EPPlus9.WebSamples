@@ -1,0 +1,56 @@
+﻿@using OfficeOpenXml.Interfaces.Fonts
+@model EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9.PdfExportTableLogModel
+@functions {
+    static string RowClass(FontLogSeverity s) => s switch
+    {
+        FontLogSeverity.Debug => "text-muted",
+        FontLogSeverity.Warning => "table-warning",
+        FontLogSeverity.Error => "table-danger",
+        _ => ""
+    };
+}
+<p class="mb-2">
+    PDF generated (@Model.PdfSize.ToString("N0") bytes). Minimum level: <strong>@Model.MinSeverity</strong>.
+    @foreach (var g in Model.Events.GroupBy(e => e.Severity).OrderBy(g => g.Key))
+    {
+        <span class="badge badge-secondary mr-1">@g.Key: @g.Count()</span>
+    }
+</p>
+@if (Model.DroppedCount > 0)
+{
+    <div class="alert alert-warning">The log was capped. @Model.DroppedCount further events were discarded. Use a higher minimum level.</div>
+}
+@if (Model.Events.Count == 0)
+{
+    <div class="alert alert-info">No events were logged at this level. Try Debug.</div>
+}
+else
+{
+    <table id="fontlog-table" class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th>Severity</th>
+                <th>Type</th>
+                <th>Message</th>
+                <th>Requested</th>
+                <th>Resolved</th>
+                <th>Script</th>
+                <th>Code point</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Events)
+            {
+                <tr class="@RowClass(e.Severity)">
+                    <td>@e.Severity</td>
+                    <td>@e.Type</td>
+                    <td>@e.Message</td>
+                    <td>@e.RequestedFont</td>
+                    <td>@e.ResolvedFont</td>
+                    <td>@(e.Script?.ToString())</td>
+                    <td>@(e.CodePoint.HasValue ? "U+" + e.CodePoint.Value.ToString("X4") : "")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

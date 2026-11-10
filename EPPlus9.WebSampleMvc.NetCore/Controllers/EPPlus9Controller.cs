@@ -96,7 +96,7 @@ namespace EPPlus9.WebSampleMvc.NetCore.Controllers
         {
             if (action == "pdf")
             {
-                using var pck = model.CreateWorkbook(_env.ContentRootPath);
+                using var pck = model.CreateWorkbook(_env.ContentRootPath, model.BlackAndWhite, model.FitToPage);
                 using var ms = new MemoryStream();
                 pck.Workbook.SaveAsPdf(ms);
                 return File(ms.ToArray(), ContentTypePdf, "EPPlus Sample 4.pdf");

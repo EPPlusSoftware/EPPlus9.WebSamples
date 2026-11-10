@@ -18,14 +18,26 @@ namespace EPPlus9.WebSampleMvc.NetCore.Models.EPPlus9
 {
     public class PdfExportRangeModel
     {
+        public bool BlackAndWhite { get; set; }
+        public bool FitToPage { get; set; }
         public string Html { get; set; }
         public string Css { get; set; }
-        public ExcelPackage CreateWorkbook(string webRootPath)
+        public ExcelPackage CreateWorkbook(string webRootPath, bool blackAndWhite = false, bool fitToPage = false)
         {
             var file = Path.Combine(webRootPath, "data", "Allsvenskan2001.xlsx");
-            return new ExcelPackage(file);
+            var package = new ExcelPackage(file);
+
+            var settings = package.Workbook.Worksheets["Sheet1"].PrinterSettings;
+            settings.BlackAndWhite = blackAndWhite;
+            settings.FitToPage = fitToPage;
+            if (fitToPage)
+            {
+                settings.FitToWidth = 1;
+                settings.FitToHeight = 1;
+            }
+            return package;
         }
-        
+
 
         internal async Task LoadHtml(string webRootPath)
         {

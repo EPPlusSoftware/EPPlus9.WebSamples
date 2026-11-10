@@ -46,7 +46,18 @@
         </div>
         <form asp-action="PdfExportRange" method="post" id="form1">
         @Html.AntiForgeryToken()
-
+            <div class="row mt-3">
+                <div class="col form-group">
+                    <div class="form-check">
+                        @Html.CheckBoxFor(x => x.BlackAndWhite, new { @class = "form-check-input", id = "chkBlackAndWhite" })
+                        <label class="form-check-label" for="chkBlackAndWhite">Black and white (PDF only)</label>
+                    </div>
+                    <div class="form-check">
+                        @Html.CheckBoxFor(x => x.FitToPage, new { @class = "form-check-input", id = "chkFitToPage" })
+                        <label class="form-check-label" for="chkFitToPage">Fit to page (PDF only)</label>
+                    </div>
+                </div>
+            </div>
         <div class="row mt-3">
             <div class="col-12">
                 <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="pdf">
@@ -73,6 +84,16 @@
         <p>C# code below
             <pre><code class="language-csharp">var file = Path.Combine(webRootPath, "data", "Allsvenskan2001.xlsx");
 using var package = new ExcelPackage(file);
+
+var settings = package.Workbook.Worksheets["Sheet1"].PrinterSettings;
+settings.BlackAndWhite = model.BlackAndWhite;
+settings.FitToPage = model.FitToPage;
+if (model.FitToPage)
+{
+    settings.FitToWidth = 1;
+    settings.FitToHeight = 1;
+}
+
 using var ms = new MemoryStream();
 package.Workbook.SaveAsPdf(ms);
 return File(ms.ToArray(), "application/pdf", "EPPlus Sample 4.pdf");</code></pre>
